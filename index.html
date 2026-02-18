@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tennis Elbow Rehab Plan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9fafb;color:#111}
+  input[type=number]{-moz-appearance:textfield}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = “te-rehab-v3”;
+const WEEKS = 12;
+const DAYS = [“Mon”,“Tue”,“Wed”,“Thu”,“Fri”,“Sat”,“Sun”];
+const TRAIN_DAYS = [0, 2, 4];
+
+const DEFAULT_DATA = {
+currentWeek: 1,
+sessionLog: {},
+checkedItems: {},
+targetLoads: { ext:””, sup:””, grip:””, unit:“lbs” },
+};
+
+const PHASES = [
+{
+label:“Phase 1: Foundation”, weeks:“Weeks 1–3”, range:[1,3],
+bg:”#dbeafe”, border:”#93c5fd”, hdr:”#3b82f6”,
+exercises:[
+{ id:“ext”, name:“Wrist Extension Isometric”, sets:“3 sets × 30s”, load:“Light-moderate” },
+],
+note:“One exercise only. Focus on form and finding your working weight. Pain up to 4/10 is OK.”,
+},
+{
+label:“Phase 2: Build”, weeks:“Weeks 4–7”, range:[4,7],
+bg:”#fef3c7”, border:”#fcd34d”, hdr:”#f59e0b”,
+exercises:[
+{ id:“ext”,  name:“Wrist Extension Isometric”,  sets:“4 sets × 30s”, load:“~70% max” },
+{ id:“sup”,  name:“Wrist Supination Isometric”, sets:“3 sets × 30s”, load:“~70% max” },
+],
+note:“Add second exercise. Increase weight if 30s feels easy. Check pain baseline each morning.”,
+},
+{
+label:“Phase 3: Strengthen”, weeks:“Weeks 8–12”, range:[8,12],
+bg:”#dcfce7”, border:”#86efac”, hdr:”#22c55e”,
+exercises:[
+{ id:“ext”,  name:“Wrist Extension Isometric”,  sets:“4–5 sets × 30s”, load:“Heavy” },
+{ id:“sup”,  name:“Wrist Supination Isometric”, sets:“3–4 sets × 30s”, load:“Heavy” },
+{ id:“grip”, name:“Grip/Forearm Isometric Hold”, sets:“3 sets × 30s”,  load:“Heavy” },
+],
+note:“All three exercises. Reintroduce light pickleball when pain is consistently ≤2/10.”,
+},
+];
+
+const CHECKLIST = [
+{ id:“c1”, label:“Take 15g collagen/gelatin + 225mg vitamin C”, when:“30–60 min before” },
+{ id:“c2”, label:“Warm up forearm — light wrist circles for 2 min”, when:“Before exercises” },
+{ id:“c3”, label:“Wrist Extension Isometric — 30s hold, 60s rest × sets”, when:“Main exercise” },
+{ id:“c4”, label:“Wrist Supination Isometric — 30s hold, 60s rest × sets”, when:“Phase 2+ only” },
+{ id:“c5”, label:“Grip/Forearm Hold — 30s hold, 60s rest × sets”, when:“Phase 3 only” },
+{ id:“c6”, label:“Rate pain during session (target: ≤4/10)”, when:“During training” },
+{ id:“c7”, label:“Check pain next morning — should be at baseline or better”, when:“Next morning” },
+];
+
+const RULES = [
+{ icon:“⏱️”, title:“30-second holds”, desc:“Every set must be a full 30 seconds. This is the minimum duration for the tendon stress-relaxation response that triggers healing.” },
+{ icon:“💪”, title:“~70% of max effort”, desc:“Holds must be genuinely hard. Light holds don’t give enough stimulus. Use the Load Calculator tab to find your exact training weight.” },
+{ icon:“📅”, title:“Every other day only”, desc:“Train Mon/Wed/Fri. Rest days are not optional — net collagen synthesis peaks ~36 hours after loading, so off days are when the tendon rebuilds.” },
+{ icon:“😬”, title:“Pain up to 4/10 is OK”, desc:“Some discomfort during the hold is acceptable. The key rule: pain must return to baseline within 24 hours. If it’s worse next morning, reduce load or sets.” },
+{ icon:“🍋”, title:“Collagen + vitamin C first”, desc:“Take 15g gelatin + 225mg vitamin C exactly 30–60 minutes before training. Exercise drives the amino acids to the tendon — timing matters.” },
+{ icon:“🏓”, title:“Reduce pickleball volume”, desc:“Fast explosive loading (backhands, hard dinking, smashes) prevents healing. Significantly cut back, especially any motion that provokes pain.” },
+{ icon:“📈”, title:“Progress takes time”, desc:“Expect 6–12 weeks for meaningful improvement. The research showed full tendon remodeling in as little as 2 months when the protocol was followed correctly.” },
+{ icon:“🔁”, title:“Advance your weight regularly”, desc:“Re-test your max every 2–3 weeks. If 30 seconds starts feeling easy, it’s time to add weight — update your numbers in the Load Calculator tab.” },
+];
+
+// ─── Storage ──────────────────────────────────────────────────────────────────
+
+function storageLoad() {
+try {
+const raw = localStorage.getItem(STORAGE_KEY);
+if (raw) return JSON.parse(raw);
+} catch(_) {}
+return null;
+}
+
+function storageSave(data) {
+try {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+return true;
+} catch(_) {
+return false;
+}
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+const S = {
+page:       { maxWidth:640, margin:“0 auto”, padding:“16px”, paddingBottom:48 },
+header:     { background:“linear-gradient(135deg,#4f46e5,#7c3aed)”, borderRadius:20, padding:“20px 20px 16px”, color:”#fff”, marginBottom:20, boxShadow:“0 4px 20px rgba(79,70,229,.3)” },
+tabBar:     { display:“flex”, gap:8, marginBottom:20 },
+card:       { background:”#fff”, border:“1px solid #e5e7eb”, borderRadius:16, padding:“14px 16px”, marginBottom:12, boxShadow:“0 1px 4px rgba(0,0,0,.06)” },
+section:    { fontWeight:700, color:”#374151”, marginBottom:8, fontSize:15 },
+note:       { fontSize:12, color:”#6b7280”, fontStyle:“italic”, marginTop:6 },
+badge:      { display:“inline-block”, background:”#f3f4f6”, border:“1px solid #e5e7eb”, borderRadius:999, padding:“2px 10px”, fontSize:12, fontWeight:600, whiteSpace:“nowrap” },
+infoBox:    { background:”#eff6ff”, border:“1px solid #bfdbfe”, borderRadius:12, padding:“14px 16px”, marginBottom:16 },
+warnBox:    { background:”#fffbeb”, border:“1px solid #fde68a”, borderRadius:12, padding:“14px 16px”, marginBottom:16 },
+resultGood: { background:”#f0fdf4”, border:“1px solid #86efac”, borderRadius:12, padding:“12px 16px”, display:“flex”, justifyContent:“space-between”, alignItems:“center” },
+resultEmpty:{ background:”#f9fafb”, border:“1px solid #e5e7eb”, borderRadius:12, padding:“12px 16px”, fontSize:13, color:”#9ca3af”, fontStyle:“italic” },
+input:      { border:“1px solid #d1d5db”, borderRadius:8, padding:“8px 12px”, fontSize:14, width:120, outline:“none” },
+progressBar:{ width:“100%”, background:“rgba(99,102,241,.3)”, borderRadius:999, height:10, marginTop:8 },
+checkRow:   { display:“flex”, alignItems:“flex-start”, gap:12, padding:“12px 16px”, cursor:“pointer”, borderBottom:“1px solid #f3f4f6”, transition:“background .15s” },
+ruleCard:   { display:“flex”, gap:14, padding:“14px 16px”, background:”#fff”, border:“1px solid #e5e7eb”, borderRadius:16, marginBottom:10, boxShadow:“0 1px 4px rgba(0,0,0,.06)” },
+};
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+
+function App() {
+const [data, setData]           = useState(null);
+const [tab, setTab]             = useState(“tracker”);
+const [saveStatus, setSaveStatus] = useState(“loading”);
+const [lastSaved, setLastSaved] = useState(null);
+const skipFirst = useRef(true);
+
+// Load on mount
+useEffect(() => {
+const saved = storageLoad();
+setData(saved ? { …DEFAULT_DATA, …saved } : { …DEFAULT_DATA });
+setSaveStatus(“idle”);
+}, []);
+
+// Save on data change
+useEffect(() => {
+if (data === null) return;
+if (skipFirst.current) { skipFirst.current = false; return; }
+setSaveStatus(“saving”);
+const ok = storageSave(data);
+if (ok) {
+setLastSaved(new Date().toLocaleString(undefined,{month:“short”,day:“numeric”,hour:“numeric”,minute:“2-digit”}));
+setSaveStatus(“saved”);
+} else {
+setSaveStatus(“error”);
+}
+}, [data]);
+
+const update  = patch => setData(prev => ({…prev, …patch}));
+
+const toggleSession = (week, di) => {
+const key = `${week}-${di}`;
+setData(prev => ({…prev, sessionLog:{…prev.sessionLog,[key]:!prev.sessionLog[key]}}));
+};
+const toggleCheck = id => {
+setData(prev => ({…prev, checkedItems:{…prev.checkedItems,[id]:!prev.checkedItems[id]}}));
+};
+const resetChecklist = () => setData(prev => ({…prev, checkedItems:{}}));
+const resetAll = () => {
+if (!window.confirm(“Reset ALL progress? This cannot be undone.”)) return;
+skipFirst.current = false;
+setData({…DEFAULT_DATA});
+};
+
+if (data === null) {
+return <div style={{minHeight:“100vh”,display:“flex”,alignItems:“center”,justifyContent:“center”,color:”#9ca3af”}}>Loading your progress…</div>;
+}
+
+const phase = PHASES.find(p => data.currentWeek >= p.range[0] && data.currentWeek <= p.range[1]) || PHASES[2];
+const total = WEEKS * TRAIN_DAYS.length;
+const done  = Object.values(data.sessionLog).filter(Boolean).length;
+const pct   = Math.round((done / total) * 100);
+
+return (
+<div style={S.page}>
+
+```
+  {/* HEADER */}
+  <div style={S.header}>
+    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:4}}>
+      <span style={{fontSize:32}}>🎾</span>
+      <h1 style={{fontSize:22,fontWeight:800,lineHeight:1.2}}>Tennis Elbow Rehab Plan</h1>
+    </div>
+    <p style={{fontSize:13,color:"rgba(255,255,255,.7)",marginBottom:8}}>Lateral Epicondylitis · Isometric Protocol · 12 Weeks</p>
+    <div style={{fontSize:12,marginBottom:12}}>
+      {saveStatus==="saving" && <span style={{color:"#c7d2fe"}}>⏳ Saving…</span>}
+      {saveStatus==="saved"  && <span style={{color:"#86efac"}}>✓ Saved · {lastSaved}</span>}
+      {saveStatus==="error"  && <span style={{color:"#fca5a5"}}>⚠️ Save failed</span>}
+      {saveStatus==="idle"   && <span style={{color:"rgba(255,255,255,.6)"}}>Auto-saves to this browser</span>}
+    </div>
+    <div style={{display:"flex",justifyContent:"space-between",fontSize:14,marginBottom:6}}>
+      <span>Overall Progress</span>
+      <span>{done} / {total} sessions · {pct}%</span>
+    </div>
+    <div style={S.progressBar}>
+      <div style={{background:"#fff",height:10,borderRadius:999,width:`${pct}%`,transition:"width .4s"}}/>
+    </div>
+  </div>
+
+  {/* TABS */}
+  <div style={S.tabBar}>
+    {[["tracker","📅 Tracker"],["load","🏋️ My Loads"],["rules","📌 Rules"]].map(([id,label]) => (
+      <button key={id} onClick={()=>setTab(id)} style={{
+        flex:1,padding:"9px 4px",borderRadius:12,fontSize:13,fontWeight:600,cursor:"pointer",transition:"all .15s",
+        border: tab===id ? "none" : "1px solid #e5e7eb",
+        background: tab===id ? "#4f46e5" : "#fff",
+        color: tab===id ? "#fff" : "#6b7280",
+        boxShadow: tab===id ? "0 2px 8px rgba(79,70,229,.3)" : "none",
+      }}>{label}</button>
+    ))}
+  </div>
+
+  {/* ══ TRACKER ══════════════════════════════════════════════════════════ */}
+  {tab==="tracker" && <>
+
+    {/* Phase cards */}
+    <p style={S.section}>Phases</p>
+    {PHASES.map(p => {
+      const ptotal = (p.range[1]-p.range[0]+1)*TRAIN_DAYS.length;
+      const pdone  = Object.entries(data.sessionLog).filter(([k,v])=>v&&parseInt(k)>=p.range[0]&&parseInt(k)<=p.range[1]).length;
+      const pp     = Math.round((pdone/ptotal)*100);
+      return (
+        <div key={p.label} style={{border:`2px solid ${p.border}`,borderRadius:16,overflow:"hidden",marginBottom:12,background:p.bg}}>
+          <div style={{background:p.hdr,color:"#fff",padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontWeight:700,fontSize:14}}>{p.label}</span>
+            <span style={{fontSize:12,opacity:.9}}>{p.weeks} · {pdone}/{ptotal}</span>
+          </div>
+          <div style={{padding:"4px 16px 0"}}>
+            <div style={{background:"rgba(255,255,255,.5)",borderRadius:999,height:4,margin:"8px 0"}}>
+              <div style={{background:p.hdr,height:4,borderRadius:999,width:`${pp}%`,transition:"width .4s"}}/>
+            </div>
+          </div>
+          <div style={{padding:"4px 16px 14px"}}>
+            {p.exercises.map(ex => {
+              const sv = data.targetLoads[ex.id];
+              return (
+                <div key={ex.id} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:13,color:"#374151"}}>→ {ex.name} — {ex.sets}</span>
+                  {sv && <span style={S.badge}>{sv} {data.targetLoads.unit}</span>}
+                </div>
+              );
+            })}
+            <p style={S.note}>{p.note}</p>
+          </div>
+        </div>
+      );
+    })}
+
+    {/* Week picker */}
+    <p style={{...S.section,marginTop:8}}>Week Tracker</p>
+    <p style={{fontSize:12,color:"#9ca3af",marginBottom:10}}>Select your current week, then tap training days to mark them done.</p>
+    <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
+      {Array.from({length:WEEKS},(_,i)=>i+1).map(w => {
+        const wp    = PHASES.find(p=>w>=p.range[0]&&w<=p.range[1])||PHASES[2];
+        const wfull = TRAIN_DAYS.filter(d=>data.sessionLog[`${w}-${d}`]).length===TRAIN_DAYS.length;
+        const sel   = w===data.currentWeek;
+        return (
+          <div key={w} style={{position:"relative"}}>
+            <button onClick={()=>update({currentWeek:w})} style={{
+              padding:"4px 10px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",
+              border: sel?"none":"1px solid #e5e7eb",
+              background: sel ? wp.hdr : "#fff",
+              color: sel ? "#fff" : "#6b7280",
+              boxShadow: sel?"0 2px 6px rgba(0,0,0,.15)":"none",
+            }}>W{w}</button>
+            {wfull && <span style={{position:"absolute",top:-4,right:-4,width:10,height:10,background:"#4ade80",borderRadius:"50%",border:"2px solid white"}}/>}
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Week calendar */}
+    <div style={{border:`2px solid ${phase.border}`,borderRadius:16,overflow:"hidden",marginBottom:16,background:phase.bg}}>
+      <div style={{background:phase.hdr,color:"#fff",padding:"10px 16px",display:"flex",justifyContent:"space-between"}}>
+        <span style={{fontWeight:700}}>Week {data.currentWeek}</span>
+        <span style={{fontSize:13,opacity:.9}}>{phase.label}</span>
+      </div>
+      <div style={{padding:16}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4}}>
+          {DAYS.map((day,di)=>{
+            const train = TRAIN_DAYS.includes(di);
+            const done2 = data.sessionLog[`${data.currentWeek}-${di}`];
+            return (
+              <div key={day} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                <span style={{fontSize:11,fontWeight:700,color:"#6b7280"}}>{day}</span>
+                {train ? (
+                  <button onClick={()=>toggleSession(data.currentWeek,di)} style={{
+                    width:40,height:40,borderRadius:10,fontSize:18,fontWeight:800,cursor:"pointer",
+                    border: done2?"none":"2px solid #d1d5db",
+                    background: done2?"#22c55e":"#fff",
+                    color: done2?"#fff":"#d1d5db",
+                    boxShadow:"0 1px 4px rgba(0,0,0,.08)",
+                  }}>{done2?"✓":"○"}</button>
+                ) : (
+                  <div style={{width:40,height:40,borderRadius:10,background:"rgba(255,255,255,.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#9ca3af"}}>rest</div>
+                )}
+                {train && <span style={{fontSize:11,color:"#9ca3af"}}>train</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+
+    {/* Checklist */}
+    <p style={S.section}>Session Checklist</p>
+    <p style={{fontSize:12,color:"#9ca3af",marginBottom:8}}>Run through this on every training day.</p>
+    <div style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:16,overflow:"hidden",marginBottom:6,boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
+      {CHECKLIST.map((item,i)=>{
+        const checked = data.checkedItems[item.id];
+        return (
+          <div key={item.id} onClick={()=>toggleCheck(item.id)} style={{
+            ...S.checkRow,
+            borderBottom: i<CHECKLIST.length-1?"1px solid #f3f4f6":"none",
+            background: checked?"#f0fdf4":"#fff",
+          }}>
+            <div style={{
+              width:20,height:20,borderRadius:6,flexShrink:0,border:`2px solid ${checked?"#22c55e":"#d1d5db"}`,
+              background:checked?"#22c55e":"transparent",display:"flex",alignItems:"center",justifyContent:"center",marginTop:2,
+            }}>
+              {checked && <span style={{color:"#fff",fontSize:11,fontWeight:800}}>✓</span>}
+            </div>
+            <div>
+              <p style={{fontSize:14,color:checked?"#9ca3af":"#374151",textDecoration:checked?"line-through":"none"}}>{item.label}</p>
+              <p style={{fontSize:11,color:"#9ca3af",marginTop:2}}>{item.when}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    <button onClick={resetChecklist} style={{fontSize:12,color:"#9ca3af",background:"none",border:"none",cursor:"pointer",textDecoration:"underline",marginBottom:24}}>
+      Reset checklist for next session
+    </button>
+  </>}
+
+  {/* ══ LOAD CALCULATOR ══════════════════════════════════════════════════ */}
+  {tab==="load" && <>
+    <div style={S.infoBox}>
+      <p style={{fontWeight:700,color:"#1e40af",marginBottom:8,fontSize:14}}>How to Find Your Max (One-Time Test)</p>
+      <ol style={{paddingLeft:18,fontSize:13,color:"#1d4ed8",lineHeight:1.8}}>
+        <li>Pick up a dumbbell in your injured hand.</li>
+        <li>Rest forearm on a table, hand hanging off edge, palm down.</li>
+        <li>Extend your wrist upward and hold for <strong>5 seconds</strong> at max effort.</li>
+        <li>If easy → increase weight. Can't hold it → decrease.</li>
+        <li>Heaviest weight held with good form for 5 sec = your max.</li>
+        <li>Your training target = <strong>70% of that number</strong> (calculated below).</li>
+      </ol>
+      <p style={{fontSize:12,color:"#3b82f6",marginTop:8,fontStyle:"italic"}}>Re-test every 2–3 weeks as you get stronger and update the numbers below.</p>
+    </div>
+
+    {/* Unit toggle */}
+    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+      <span style={{fontSize:13,fontWeight:600,color:"#6b7280"}}>Units:</span>
+      {["lbs","kg"].map(u=>(
+        <button key={u} onClick={()=>update({targetLoads:{...data.targetLoads,unit:u}})} style={{
+          padding:"6px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",
+          border: data.targetLoads.unit===u?"none":"1px solid #e5e7eb",
+          background: data.targetLoads.unit===u?"#4f46e5":"#fff",
+          color: data.targetLoads.unit===u?"#fff":"#6b7280",
+        }}>{u}</button>
+      ))}
+    </div>
+
+    {[
+      { id:"ext",  label:"Wrist Extension Isometric", icon:"💪", how:"Forearm on table, palm down, hand off edge. Extend wrist upward against weight." },
+      { id:"sup",  label:"Wrist Supination Isometric", icon:"🔄", how:"Elbow at 90°, arm at side. Hold a hammer/dumbbell and resist rotation (keep palm up)." },
+      { id:"grip", label:"Grip / Forearm Hold", icon:"✊", how:"Squeeze a thick dumbbell handle or weight. Track heaviest weight you can hold for 5 seconds." },
+    ].map(ex => {
+      const raw    = data.targetLoads[ex.id] || "";
+      const unit   = data.targetLoads.unit;
+      const max    = parseFloat(raw);
+      const valid  = !isNaN(max) && max > 0;
+      const t70    = valid ? Math.round(max * 0.70 * 2) / 2 : null;
+
+      return (
+        <div key={ex.id} style={S.card}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+            <span style={{fontSize:22}}>{ex.icon}</span>
+            <span style={{fontWeight:700,fontSize:14,color:"#111827"}}>{ex.label}</span>
+          </div>
+          <p style={{fontSize:12,color:"#9ca3af",fontStyle:"italic",marginBottom:12}}>{ex.how}</p>
+          <label style={{fontSize:11,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:".06em"}}>
+            My max ({unit})
+          </label>
+          <div style={{display:"flex",gap:8,alignItems:"center",margin:"6px 0 12px"}}>
+            <input type="number" min="0" step="0.5"
+              value={raw}
+              onChange={e=>update({targetLoads:{...data.targetLoads,[ex.id]:e.target.value}})}
+              placeholder={unit==="lbs"?"e.g. 20":"e.g. 10"}
+              style={S.input}
+            />
+            <span style={{fontSize:13,color:"#6b7280"}}>{unit}</span>
+          </div>
+          {valid ? (
+            <div style={S.resultGood}>
+              <div>
+                <p style={{fontSize:11,color:"#16a34a",fontWeight:700,textTransform:"uppercase",letterSpacing:".06em"}}>Your 70% Training Target</p>
+                <p style={{fontSize:28,fontWeight:800,color:"#15803d"}}>{t70} <span style={{fontSize:14,fontWeight:400}}>{unit}</span></p>
+              </div>
+              <div style={{textAlign:"right",fontSize:12,color:"#4ade80"}}>
+                <p>Max: {max} {unit}</p>
+                <p>→ {t70} {unit}</p>
+              </div>
+            </div>
+          ) : (
+            <div style={S.resultEmpty}>Enter your max above to calculate your training weight.</div>
+          )}
+        </div>
+      );
+    })}
+
+    <div style={S.warnBox}>
+      <p style={{fontSize:13,color:"#92400e"}}><strong>📈 Progress tip:</strong> Re-test every 2–3 weeks. When your max goes up, update it here and your training target updates automatically.</p>
+    </div>
+  </>}
+
+  {/* ══ RULES ════════════════════════════════════════════════════════════ */}
+  {tab==="rules" && <>
+    {RULES.map(r => (
+      <div key={r.title} style={S.ruleCard}>
+        <span style={{fontSize:28,flexShrink:0}}>{r.icon}</span>
+        <div>
+          <p style={{fontWeight:700,fontSize:14,color:"#111827",marginBottom:3}}>{r.title}</p>
+          <p style={{fontSize:13,color:"#6b7280",lineHeight:1.6}}>{r.desc}</p>
+        </div>
+      </div>
+    ))}
+  </>}
+
+  {/* FOOTER */}
+  <div style={{textAlign:"center",marginTop:20}}>
+    <button onClick={resetAll} style={{fontSize:12,color:"#fca5a5",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}>
+      Reset all progress
+    </button>
+  </div>
+  <p style={{textAlign:"center",fontSize:11,color:"#d1d5db",marginTop:12}}>
+    Not medical advice. If pain worsens after 4–6 weeks, see a physical therapist.
+  </p>
+</div>
+```
+
+);
+}
+
+ReactDOM.createRoot(document.getElementById(“root”)).render(<App/>);
+</script>
+
+</body>
+</html>
