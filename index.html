@@ -240,7 +240,7 @@ const PHASES = [
 label:“Phase 1: Foundation”, weeks:“Weeks 1–3”, range:[1,3],
 bg:”#dbeafe”, border:”#93c5fd”, hdr:”#3b82f6”,
 exercises:[
-{ …EX_DEF.ext, sets:3,
+{ ...EX_DEF.ext, sets:3,
 how:“Forearm resting on a table, palm down, hand hanging off the edge. Hold a dumbbell with your wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
 ],
 note:“One exercise only. Focus on form and finding your working weight. Pain up to 4/10 is OK.”,
@@ -249,9 +249,9 @@ note:“One exercise only. Focus on form and finding your working weight. Pain u
 label:“Phase 2: Build”, weeks:“Weeks 4–7”, range:[4,7],
 bg:”#fef3c7”, border:”#fcd34d”, hdr:”#f59e0b”,
 exercises:[
-{ …EX_DEF.ext, sets:4,
+{ ...EX_DEF.ext, sets:4,
 how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
-{ …EX_DEF.sup, sets:3,
+{ ...EX_DEF.sup, sets:3,
 how:“Elbow bent at 90°, tucked at your side. Hold a hammer or dumbbell with your palm facing up. Resist any rotation and hold the position for 30 seconds.” },
 ],
 note:“Add second exercise. Increase weight if 30s feels easy. Check pain baseline each morning.”,
@@ -260,11 +260,11 @@ note:“Add second exercise. Increase weight if 30s feels easy. Check pain basel
 label:“Phase 3: Strengthen”, weeks:“Weeks 8–12”, range:[8,12],
 bg:”#dcfce7”, border:”#86efac”, hdr:”#22c55e”,
 exercises:[
-{ …EX_DEF.ext, sets:5,
+{ ...EX_DEF.ext, sets:5,
 how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Hold for 30 seconds.” },
-{ …EX_DEF.sup, sets:4,
+{ ...EX_DEF.sup, sets:4,
 how:“Elbow at 90°, arm at side. Hold a hammer/dumbbell with palm up. Resist rotation for 30 seconds.” },
-{ …EX_DEF.grip, sets:3,
+{ ...EX_DEF.grip, sets:3,
 how:“Grip a thick dumbbell handle or weight firmly at max effort. Keep arm relaxed at your side and hold the squeeze for 30 seconds.” },
 ],
 note:“All three exercises. Reintroduce light pickleball when pain is consistently ≤2/10.”,
@@ -301,7 +301,7 @@ checks:       {}, // pre/post workout checks per session (persisted)
 loads:        { ext:””, sup:””, grip:””, unit:“lbs” },
 };
 
-let S = { …DEF }; // main persisted state
+let S = { ...DEF }; // main persisted state
 let tab = “tracker”;
 let lastSaved = null;
 
@@ -328,7 +328,7 @@ return true;
 function hydrate() {
 try {
 const raw = localStorage.getItem(SK);
-if (raw) S = { …DEF, …JSON.parse(raw) };
+if (raw) S = { ...DEF, ...JSON.parse(raw) };
 } catch(_) {}
 
 // Session sets: restore if same day, else start fresh
@@ -706,22 +706,22 @@ return Math.round(n * 0.70 * 2) / 2; // round to nearest 0.5
 
 function setTab(t)     { tab = t; render(); }
 function setWeek(w)    { setState({ currentWeek: w }); }
-function setUnit(u)    { setState({ loads: { …S.loads, unit: u } }); }
+function setUnit(u)    { setState({ loads: { ...S.loads, unit: u } }); }
 
 function setLoad(id, v) {
 // Update state directly — focus is preserved via render()’s focus restoration
-S.loads = { …S.loads, [id]: v };
+S.loads = { ...S.loads, [id]: v };
 persist();
 render();
 }
 
 function toggleDay(week, di) {
 const key = `${week}-${di}`;
-setState({ sessionLog: { …S.sessionLog, [key]: !S.sessionLog[key] } });
+setState({ sessionLog: { ...S.sessionLog, [key]: !S.sessionLog[key] } });
 }
 
 function toggleCheck(id) {
-setState({ checks: { …S.checks, [id]: !S.checks[id] } });
+setState({ checks: { ...S.checks, [id]: !S.checks[id] } });
 }
 
 function resetChecks() {
@@ -779,7 +779,7 @@ input.click();
 function resetAll() {
 if (!confirm(“Reset ALL progress? This cannot be undone.”)) return;
 tCancel();
-S = { …DEF };
+S = { ...DEF };
 sets = {};
 lastSaved = null;
 persist();
