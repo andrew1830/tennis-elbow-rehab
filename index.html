@@ -5,6 +5,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="color-scheme" content="light"/>
+<meta name="theme-color" content="#4338ca"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="manifest" href="manifest.json"/>
 <title>Tennis Elbow Rehab</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -347,9 +351,18 @@ localStorage.setItem(SKS, JSON.stringify({ date: new Date().toDateString(), sets
 //  4. AUDIO
 // ═══════════════════════════════════════════════════════════
 
+let _audioCtx;
+function getAudioCtx() {
+if (!_audioCtx || _audioCtx.state === 'closed') {
+_audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+if (_audioCtx.state === 'suspended') _audioCtx.resume();
+return _audioCtx;
+}
+
 function beep(f=660, d=0.25) {
 try {
-const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const ctx = getAudioCtx();
 const o = ctx.createOscillator(), g = ctx.createGain();
 o.connect(g); g.connect(ctx.destination);
 o.frequency.value = f;
@@ -374,22 +387,28 @@ function endToneRest() {
 //  5. TIMER
 // ═══════════════════════════════════════════════════════════
 
-const T = { active:false, exId:null, type:null, remaining:0, duration:0, iv:null };
+const T = { active:false, exId:null, type:null, remaining:0, duration:0, endTime:0, lastBeep:-1, iv:null };
 
 function tStart(exId, type) {
 tClear();
 T.active = true; T.exId = exId; T.type = type;
 T.duration = type === ‘hold’ ? 30 : 60;
+T.endTime = Date.now() + T.duration * 1000;
 T.remaining = T.duration;
+T.lastBeep = -1;
 render();
 tTick();
-T.iv = setInterval(tTick, 1000);
+T.iv = setInterval(tTick, 250);
 }
 
 function tTick() {
-if (T.remaining > 0) T.remaining–;
+const prev = T.remaining;
+T.remaining = Math.max(0, Math.ceil((T.endTime - Date.now()) / 1000));
 tDOM();
-if (T.remaining <= 5 && T.remaining > 0) beep(300 + T.remaining * 80, 0.15);
+if (T.remaining <= 5 && T.remaining > 0 && T.remaining !== T.lastBeep) {
+T.lastBeep = T.remaining;
+beep(300 + T.remaining * 80, 0.15);
+}
 if (T.remaining <= 0) tDone();
 }
 
@@ -452,18 +471,22 @@ else lbl.textContent = warn ? ‘⚡ Get ready!’ : ‘😮‍💨 Resting…�
 // ═══════════════════════════════════════════════════════════
 
 function render() {
-// Snapshot focus state before wiping DOM
+// Snapshot focus and scroll state before wiping DOM
 const ae = document.activeElement;
 const focId = ae ? ae.id : null;
 const focSel = (ae && ae.selectionStart != null) ? ae.selectionStart : null;
+const scrollY = window.scrollY;
 
 document.getElementById(‘app’).innerHTML = buildApp();
+
+// Restore scroll position
+window.scrollTo(0, scrollY);
 
 // Restore focus & cursor
 if (focId) {
 const el = document.getElementById(focId);
 if (el) {
-el.focus();
+el.focus({ preventScroll: true });
 if (focSel != null) { try { el.setSelectionRange(focSel, focSel); } catch(_){} }
 }
 }
@@ -487,7 +510,7 @@ const total = WEEKS * TD.length;
 const done  = Object.values(S.sessionLog).filter(Boolean).length;
 const pct   = Math.round((done / total) * 100);
 const phase = phaseFor(S.currentWeek);
-return ` ${buildHeader(done, total, pct)} ${buildTabs()} ${tab === 'tracker' ? buildTracker(phase) : ''} ${tab === 'load'    ? buildLoads()        : ''} ${tab === 'rules'   ? buildRules()        : ''} <div style="text-align:center;margin-top:20px"> <button class="danger" onclick="resetAll()">Reset all progress</button> </div> <p class="footer-note">Not medical advice. If pain worsens after 4–6 weeks, see a physical therapist.</p>`;
+return ` ${buildHeader(done, total, pct)} ${buildTabs()} ${tab === 'tracker' ? buildTracker(phase) : ''} ${tab === 'load'    ? buildLoads()        : ''} ${tab === 'rules'   ? buildRules()        : ''} <div style="text-align:center;margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px"> <div style="display:flex;gap:10px"> <button onclick="exportData()" style="font-size:12px;color:#6b7280;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 16px;cursor:pointer;font-weight:600">📤 Export Backup</button> <button onclick="importData()" style="font-size:12px;color:#6b7280;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 16px;cursor:pointer;font-weight:600">📥 Import Backup</button> </div> <button class="danger" onclick="resetAll()">Reset all progress</button> </div> <p class="footer-note">Not medical advice. If pain worsens after 4–6 weeks, see a physical therapist.</p>`;
 }
 
 // ── Header ──────────────────────────────────────────────────
@@ -717,6 +740,42 @@ persistSets();
 render();
 }
 
+function exportData() {
+const data = JSON.stringify({ version: SK, state: S, sets, exportDate: new Date().toISOString() }, null, 2);
+const blob = new Blob([data], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `tennis-elbow-backup-${new Date().toISOString().slice(0,10)}.json`;
+a.click();
+URL.revokeObjectURL(url);
+}
+
+function importData() {
+const input = document.createElement('input');
+input.type = 'file';
+input.accept = '.json';
+input.onchange = e => {
+const file = e.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = evt => {
+try {
+const data = JSON.parse(evt.target.result);
+if (!data.state || !data.version) { alert('Invalid backup file.'); return; }
+if (!confirm(`Restore backup from ${data.exportDate ? new Date(data.exportDate).toLocaleDateString() : 'unknown date'}? This will replace your current data.`)) return;
+S = { ...DEF, ...data.state };
+if (data.sets) sets = data.sets;
+persist();
+persistSets();
+render();
+} catch(_) { alert('Could not read backup file.'); }
+};
+reader.readAsText(file);
+};
+input.click();
+}
+
 function resetAll() {
 if (!confirm(“Reset ALL progress? This cannot be undone.”)) return;
 tCancel();
@@ -734,6 +793,10 @@ render();
 
 hydrate();
 render();
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 
 </script>
 </body>
