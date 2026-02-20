@@ -1,0 +1,16 @@
+{
+  "name": "Tennis Elbow Rehab",
+  "short_name": "TE Rehab",
+  "description": "12-week isometric rehab protocol tracker for lateral epicondylitis",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#4338ca",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎾</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
