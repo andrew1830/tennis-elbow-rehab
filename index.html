@@ -83,7 +83,7 @@ html,body{min-height:100vh;background:#f3f4f6;font-family:-apple-system,BlinkMac
 .pre-check:not(:last-child){border-bottom:1px solid rgba(99,102,241,.1)}
 .chkbox{width:22px;height:22px;border-radius:7px;flex-shrink:0;border:2px solid #c7d2fe;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .chkbox.on{background:#4338ca;border-color:#4338ca}
-.chkbox.on::after{content:“✓”;color:#fff;font-size:12px;font-weight:800}
+.chkbox.on::after{content:"✓";color:#fff;font-size:12px;font-weight:800}
 .chk-text{font-size:13px;color:#3730a3;font-weight:500}
 .chk-text.done{text-decoration:line-through;color:#a5b4fc}
 .chk-note{font-size:11px;color:#818cf8;margin-top:1px}
@@ -209,85 +209,85 @@ html,body{min-height:100vh;background:#f3f4f6;font-family:-apple-system,BlinkMac
 //  1. CONSTANTS & DATA
 // ═══════════════════════════════════════════════════════════
 
-const SK  = “te-rehab-v5”;
-const SKS = “te-rehab-v5-session”;
+const SK  = "te-rehab-v5";
+const SKS = "te-rehab-v5-session";
 
 const WEEKS = 12;
-const DAYS  = [“Mon”,“Tue”,“Wed”,“Thu”,“Fri”,“Sat”,“Sun”];
+const DAYS  = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const TD    = [0,2,4]; // training day indices (Mon, Wed, Fri)
 
 // Exercise definitions (shared across phases)
 const EX_DEF = {
 ext: {
-id:“ext”, name:“Wrist Extension Isometric”, icon:“💪”,
-vid:“MYd74BTpqBs”,
-vidTitle:“Wrist Extension Isometric — How To”,
+id:"ext", name:"Wrist Extension Isometric", icon:"💪",
+vid:"MYd74BTpqBs",
+vidTitle:"Wrist Extension Isometric — How To",
 },
 sup: {
-id:“sup”, name:“Wrist Supination Isometric”, icon:“🔄”,
-vid:“bS3le7kusSg”,
-vidTitle:“Wrist Supination Isometric — How To”,
+id:"sup", name:"Wrist Supination Isometric", icon:"🔄",
+vid:"bS3le7kusSg",
+vidTitle:"Wrist Supination Isometric — How To",
 },
 grip: {
-id:“grip”, name:“Grip / Forearm Isometric”, icon:“✊”,
-search:“grip+strength+isometric+forearm+hold+dumbbell+exercise”,
-vidTitle:“How to: Grip Isometric Hold”,
+id:"grip", name:"Grip / Forearm Isometric", icon:"✊",
+search:"grip+strength+isometric+forearm+hold+dumbbell+exercise",
+vidTitle:"How to: Grip Isometric Hold",
 },
 };
 
 const PHASES = [
 {
-label:“Phase 1: Foundation”, weeks:“Weeks 1–3”, range:[1,3],
-bg:”#dbeafe”, border:”#93c5fd”, hdr:”#3b82f6”,
+label:"Phase 1: Foundation", weeks:"Weeks 1–3", range:[1,3],
+bg:"#dbeafe", border:"#93c5fd", hdr:"#3b82f6",
 exercises:[
 { ...EX_DEF.ext, sets:3,
-how:“Forearm resting on a table, palm down, hand hanging off the edge. Hold a dumbbell with your wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
+how:"Forearm resting on a table, palm down, hand hanging off the edge. Hold a dumbbell with your wrist extended upward. Keep your wrist still and hold for 30 seconds." },
 ],
-note:“One exercise only. Focus on form and finding your working weight. Pain up to 4/10 is OK.”,
+note:"One exercise only. Focus on form and finding your working weight. Pain up to 4/10 is OK.",
 },
 {
-label:“Phase 2: Build”, weeks:“Weeks 4–7”, range:[4,7],
-bg:”#fef3c7”, border:”#fcd34d”, hdr:”#f59e0b”,
+label:"Phase 2: Build", weeks:"Weeks 4–7", range:[4,7],
+bg:"#fef3c7", border:"#fcd34d", hdr:"#f59e0b",
 exercises:[
 { ...EX_DEF.ext, sets:4,
-how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
+how:"Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Keep your wrist still and hold for 30 seconds." },
 { ...EX_DEF.sup, sets:3,
-how:“Elbow bent at 90°, tucked at your side. Hold a hammer or dumbbell with your palm facing up. Resist any rotation and hold the position for 30 seconds.” },
+how:"Elbow bent at 90°, tucked at your side. Hold a hammer or dumbbell with your palm facing up. Resist any rotation and hold the position for 30 seconds." },
 ],
-note:“Add second exercise. Increase weight if 30s feels easy. Check pain baseline each morning.”,
+note:"Add second exercise. Increase weight if 30s feels easy. Check pain baseline each morning.",
 },
 {
-label:“Phase 3: Strengthen”, weeks:“Weeks 8–12”, range:[8,12],
-bg:”#dcfce7”, border:”#86efac”, hdr:”#22c55e”,
+label:"Phase 3: Strengthen", weeks:"Weeks 8–12", range:[8,12],
+bg:"#dcfce7", border:"#86efac", hdr:"#22c55e",
 exercises:[
 { ...EX_DEF.ext, sets:5,
-how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Hold for 30 seconds.” },
+how:"Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Hold for 30 seconds." },
 { ...EX_DEF.sup, sets:4,
-how:“Elbow at 90°, arm at side. Hold a hammer/dumbbell with palm up. Resist rotation for 30 seconds.” },
+how:"Elbow at 90°, arm at side. Hold a hammer/dumbbell with palm up. Resist rotation for 30 seconds." },
 { ...EX_DEF.grip, sets:3,
-how:“Grip a thick dumbbell handle or weight firmly at max effort. Keep arm relaxed at your side and hold the squeeze for 30 seconds.” },
+how:"Grip a thick dumbbell handle or weight firmly at max effort. Keep arm relaxed at your side and hold the squeeze for 30 seconds." },
 ],
-note:“All three exercises. Reintroduce light pickleball when pain is consistently ≤2/10.”,
+note:"All three exercises. Reintroduce light pickleball when pain is consistently ≤2/10.",
 },
 ];
 
 const RULES = [
-{ icon:“⏱️”, title:“30-second holds”,
-desc:“The minimum for the tendon stress-relaxation response that triggers healing. Don’t cut sets short — the full 30s is where the magic happens.” },
-{ icon:“💪”, title:“~70% of max effort”,
-desc:“Holds must be genuinely challenging. Light holds don’t provide enough stimulus. Use the My Loads tab to calculate your exact 70% training weight.” },
-{ icon:“📅”, title:“Every other day only”,
-desc:“Train Mon/Wed/Fri (or any every-other-day pattern). Rest days are essential — net collagen synthesis peaks ~36 hours after loading. Off days are when the tendon rebuilds.” },
-{ icon:“😬”, title:“Pain up to 4/10 is OK”,
-desc:“Some discomfort during the hold is acceptable. The critical rule: pain must return to its normal baseline within 24 hours. If worse next morning, reduce load or sets.” },
-{ icon:“🍋”, title:“Collagen + vitamin C before”,
-desc:“15g gelatin + 225mg vitamin C taken 30–60 min before training boosts collagen synthesis. Exercise then drives those amino acids directly to the loaded tendon.” },
-{ icon:“🏓”, title:“Reduce pickleball”,
-desc:“Fast explosive loading (backhands, hard dinking, smashes) stress-shields the damaged area and prevents healing. Cut back significantly — especially any motion that provokes pain.” },
-{ icon:“📈”, title:“Progress takes weeks, not days”,
-desc:“Expect 6–12 weeks for meaningful improvement. Research showed full tendon remodeling in as little as 2 months when the protocol was followed correctly and consistently.” },
-{ icon:“🔁”, title:“Advance your weights regularly”,
-desc:“Re-test your max every 2–3 weeks. When 30 seconds starts to feel easy, your tendon is getting stronger — update your loads in the My Loads tab and increase the weight.” },
+{ icon:"⏱️", title:"30-second holds",
+desc:"The minimum for the tendon stress-relaxation response that triggers healing. Don't cut sets short — the full 30s is where the magic happens." },
+{ icon:"💪", title:"~70% of max effort",
+desc:"Holds must be genuinely challenging. Light holds don't provide enough stimulus. Use the My Loads tab to calculate your exact 70% training weight." },
+{ icon:"📅", title:"Every other day only",
+desc:"Train Mon/Wed/Fri (or any every-other-day pattern). Rest days are essential — net collagen synthesis peaks ~36 hours after loading. Off days are when the tendon rebuilds." },
+{ icon:"😬", title:"Pain up to 4/10 is OK",
+desc:"Some discomfort during the hold is acceptable. The critical rule: pain must return to its normal baseline within 24 hours. If worse next morning, reduce load or sets." },
+{ icon:"🍋", title:"Collagen + vitamin C before",
+desc:"15g gelatin + 225mg vitamin C taken 30–60 min before training boosts collagen synthesis. Exercise then drives those amino acids directly to the loaded tendon." },
+{ icon:"🏓", title:"Reduce pickleball",
+desc:"Fast explosive loading (backhands, hard dinking, smashes) stress-shields the damaged area and prevents healing. Cut back significantly — especially any motion that provokes pain." },
+{ icon:"📈", title:"Progress takes weeks, not days",
+desc:"Expect 6–12 weeks for meaningful improvement. Research showed full tendon remodeling in as little as 2 months when the protocol was followed correctly and consistently." },
+{ icon:"🔁", title:"Advance your weights regularly",
+desc:"Re-test your max every 2–3 weeks. When 30 seconds starts to feel easy, your tendon is getting stronger — update your loads in the My Loads tab and increase the weight." },
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -298,11 +298,11 @@ const DEF = {
 currentWeek:  1,
 sessionLog:   {},
 checks:       {}, // pre/post workout checks per session (persisted)
-loads:        { ext:””, sup:””, grip:””, unit:“lbs” },
+loads:        { ext:"", sup:"", grip:"", unit:"lbs" },
 };
 
 let S = { ...DEF }; // main persisted state
-let tab = “tracker”;
+let tab = "tracker";
 let lastSaved = null;
 
 // Session-only (not persisted across days, but restored within same day)
@@ -320,7 +320,7 @@ sessionLog:  S.sessionLog,
 checks:      S.checks,
 loads:       S.loads,
 }));
-lastSaved = new Date().toLocaleString(undefined,{month:“short”,day:“numeric”,hour:“numeric”,minute:“2-digit”});
+lastSaved = new Date().toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 return true;
 } catch(_) { return false; }
 }
@@ -373,13 +373,13 @@ o.start(ctx.currentTime); o.stop(ctx.currentTime + d);
 }
 
 function endToneHold() {
-// Two rising tones — signals “hold done, rest starting”
+// Two rising tones — signals "hold done, rest starting"
 beep(660, 0.4);
 setTimeout(() => beep(880, 0.6), 300);
 }
 
 function endToneRest() {
-// Three ascending tones — signals “rest done, next set”
+// Three ascending tones — signals "rest done, next set"
 [523, 659, 880].forEach((f, i) => setTimeout(() => beep(f, 0.45), i * 200));
 }
 
@@ -392,7 +392,7 @@ const T = { active:false, exId:null, type:null, remaining:0, duration:0, endTime
 function tStart(exId, type) {
 tClear();
 T.active = true; T.exId = exId; T.type = type;
-T.duration = type === ‘hold’ ? 30 : 60;
+T.duration = type === 'hold' ? 30 : 60;
 T.endTime = Date.now() + T.duration * 1000;
 T.remaining = T.duration;
 T.lastBeep = -1;
@@ -415,10 +415,10 @@ if (T.remaining <= 0) tDone();
 function tDone() {
 tClear();
 const exId = T.exId, type = T.type;
-if (type === ‘hold’) {
+if (type === 'hold') {
 endToneHold();
 T.active = true; // keep active for rest
-tStart(exId, ‘rest’);
+tStart(exId, 'rest');
 } else {
 endToneRest();
 T.active = false; T.exId = null; T.type = null;
@@ -431,8 +431,8 @@ render();
 function tSkip() {
 const exId = T.exId, type = T.type;
 tClear(); T.active = false;
-if (type === ‘hold’) {
-tStart(exId, ‘rest’);
+if (type === 'hold') {
+tStart(exId, 'rest');
 } else {
 T.exId = null; T.type = null;
 sets[exId] = (sets[exId] || 0) + 1;
@@ -452,17 +452,17 @@ function tDOM() {
 const r = T.remaining, d = T.duration, type = T.type;
 const warn = r <= 5;
 const el = id => document.getElementById(id);
-const num = el(‘t-num’); const bar = el(‘t-bar’); const lbl = el(‘t-lbl’);
+const num = el('t-num'); const bar = el('t-bar'); const lbl = el('t-lbl');
 if (num) {
-num.textContent = r + ‘s’;
-num.className = ’timer-num ’ + (warn ? ‘warn’ : type);
+num.textContent = r + 's';
+num.className = 'timer-num ' + (warn ? 'warn' : type);
 }
 if (bar) {
-bar.style.width = Math.round(((d - r) / d) * 100) + ‘%’;
+bar.style.width = Math.round(((d - r) / d) * 100) + '%';
 }
 if (lbl) {
-if (type === ‘hold’) lbl.textContent = warn ? ‘⚡ Almost there!’ : ‘🏋️ Holding…’;
-else lbl.textContent = warn ? ‘⚡ Get ready!’ : ‘😮‍💨 Resting…’;
+if (type === 'hold') lbl.textContent = warn ? '⚡ Almost there!' : '🏋️ Holding…';
+else lbl.textContent = warn ? '⚡ Get ready!' : '😮‍💨 Resting…';
 }
 }
 
@@ -477,7 +477,7 @@ const focId = ae ? ae.id : null;
 const focSel = (ae && ae.selectionStart != null) ? ae.selectionStart : null;
 const scrollY = window.scrollY;
 
-document.getElementById(‘app’).innerHTML = buildApp();
+document.getElementById('app').innerHTML = buildApp();
 
 // Restore scroll position
 window.scrollTo(0, scrollY);
@@ -524,7 +524,7 @@ return ` <div class="hdr"> <div class="hdr-top"><span style="font-size:30px">�
 // ── Tabs ─────────────────────────────────────────────────────
 function buildTabs() {
 return `<div class="tabs"> ${[['tracker','📅 Tracker'],['load','🏋️ My Loads'],['rules','📌 Rules']].map(([id,lbl]) => `<button class="tab${tab===id?' on':''}" onclick="setTab('${id}')">${lbl}</button>`
-).join(’’)}
+).join('')}
 
   </div>`;
 }
@@ -546,20 +546,20 @@ const exHTML = p.exercises.map(ex => {
 const raw = S.loads[ex.id];
 const t70 = calc70(raw);
 const unit = S.loads.unit;
-let badge = ‘’;
+let badge = '';
 if (t70) {
 badge = `<span class="target-badge" style="color:${p.hdr};border-color:${p.border}">${t70} ${unit}</span>`;
 }
 return `<div class="phase-ex"> <span class="phase-ex-name">${ex.name} — ${ex.sets}×30s</span>${badge} </div>`;
-}).join(’’);
+}).join('');
 // Video link for each exercise in the phase
 const vidHTML = p.exercises.map(ex => {
 const url = ex.vid
 ? (ex.vid.length > 11 ? `https://youtu.be/${ex.vid}` : `https://www.youtube.com/shorts/${ex.vid}`)
 : `https://www.youtube.com/results?search_query=${ex.search}`;
-const sub = ex.vid ? ‘YouTube · tap to watch’ : ‘Search YouTube for demos’;
+const sub = ex.vid ? 'YouTube · tap to watch' : 'Search YouTube for demos';
 return ` <a href="${url}" target="_blank" rel="noopener" class="phase-video-link"> <div class="phase-video-thumb" style="background:#ff0000;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px">▶</div> <div class="phase-video-text"> <p>${ex.name}</p> <span>${sub}</span> </div> </a>`;
-}).join(’’);
+}).join('');
 return ` <div class="phase" style="border-color:${p.border};background:${p.bg}"> <div class="phase-hdr" style="background:${p.hdr}"> <b>${p.label}</b><small>${p.weeks} · ${pd}/${pt} sessions</small> </div> <div class="phase-body"> <div class="phase-prog"> <div class="phase-prog-fill" style="background:${p.hdr};width:${pp}%"></div> </div> ${exHTML} <p class="phase-note">${p.note}</p> ${vidHTML} </div> </div>`;
 }
 
@@ -570,7 +570,7 @@ const p   = phaseFor(w);
 const sel = w === S.currentWeek;
 const full = TD.filter(d=>S.sessionLog[`${w}-${d}`]).length === TD.length;
 return `<div style="position:relative"> <button class="wk-btn${sel?' on':''}" style="${sel?`background:${p.hdr};border-color:${p.hdr}`:''}" onclick="setWeek(${w})">W${w}</button> ${full?`<span class="wk-dot"></span>`:''} </div>`;
-}).join(’’);
+}).join('');
 return `<div class="wk-grid">${btns}</div>`;
 }
 
@@ -581,16 +581,16 @@ const train = TD.includes(di);
 const done  = S.sessionLog[`${S.currentWeek}-${di}`];
 if (train) return ` <div class="cal-col"> <span class="cal-lbl">${day}</span> <button class="cal-day${done?' done':''}" onclick="toggleDay(${S.currentWeek},${di})">${done?'✓':'○'}</button> <span class="cal-train-lbl">train</span> </div>`;
 return ` <div class="cal-col"> <span class="cal-lbl">${day}</span> <div class="cal-rest">rest</div> </div>`;
-}).join(’’);
+}).join('');
 return ` <div class="cal" style="border-color:${phase.border}"> <div class="cal-hdr" style="background:${phase.hdr}"> <span>Week ${S.currentWeek}</span><small>${phase.label}</small> </div> <div class="cal-body"><div class="cal-grid">${cols}</div></div> </div>`;
 }
 
-// ── Today’s Session ──────────────────────────────────────────
+// ── Today's Session ──────────────────────────────────────────
 
 function buildSession(phase) {
 const preHTML = ` <div class="session-intro"> <h3>⚡ Pre-Workout</h3> ${buildCheck('collagen','Took 15g collagen/gelatin + 225mg vitamin C','30–60 min before training','#a5b4fc','#3730a3')} ${buildCheck('warmup','Completed forearm warm-up — wrist circles 2 min','Before starting exercises','#a5b4fc','#3730a3')} </div>`;
 
-const exHTML = phase.exercises.map(buildExerciseCard).join(’’);
+const exHTML = phase.exercises.map(buildExerciseCard).join('');
 
 const postHTML = ` <div class="post-section"> <h3>✅ Post-Workout Check</h3> ${buildCheck('pain','Pain stayed at ≤4/10 during the session','If not, reduce load next session','#fcd34d','#92400e')} ${buildCheck('nextday','I\'ll check pain levels tomorrow morning','Should be at your normal baseline by morning','#fcd34d','#92400e')} </div> <button class="reset-lnk" onclick="resetChecks()">Reset pre/post checks for next session</button>`;
 
@@ -614,7 +614,7 @@ const timerOther = T.active && T.exId !== ex.id;
 // Set dots
 const dots = Array.from({length:total},(_,i) =>
 `<span class="dot${i<done?' done':' empty'}">${i<done?'●':'○'}</span>`
-).join(’’);
+).join('');
 
 // Weight badge
 const wBadge = target
@@ -622,7 +622,7 @@ const wBadge = target
 : `<span style="background:#fef3c7;border:1.5px solid #fde68a;border-radius:999px;padding:2px 10px;font-size:11px;color:#92400e;white-space:nowrap">Add load</span>`;
 
 // Timer display
-let timerHTML = ‘’;
+let timerHTML = '';
 if (timerMe) {
 const pct = Math.round(((T.duration - T.remaining) / T.duration) * 100);
 timerHTML = ` <div class="timer-box ${T.type}"> <p class="timer-lbl" id="t-lbl">${T.type==='hold'?'🏋️ Holding...':'😮‍💨 Resting...'}</p> <div class="timer-num ${T.type}" id="t-num">${T.remaining}s</div> <div class="timer-track ${T.type}"> <div class="timer-fill ${T.type}" id="t-bar" style="width:${pct}%"></div> </div> <div class="timer-btns"> <button class="t-btn skip" onclick="tSkip()">⏭ Skip</button> <button class="t-btn cancel" onclick="tCancel()">✕ Cancel</button> </div> </div>`;
@@ -652,17 +652,17 @@ return `<div class="ex-card${full?' complete':''}"> <div class="ex-top"> <div> <
 function buildLoads() {
 const unit = S.loads.unit;
 const cards = [
-{ id:“ext”,  icon:“💪”, label:“Wrist Extension Isometric”,
-how:“Rest forearm on a table, palm down, hand off edge. Extend wrist upward against a dumbbell and hold for 5 seconds at max effort. Heaviest you can hold with good form = your max.”,
-vid:“MYd74BTpqBs”, vidTitle:“Wrist Extension Isometric — How To” },
-{ id:“sup”,  icon:“🔄”, label:“Wrist Supination Isometric”,
-how:“Elbow at 90°, arm at side. Hold a hammer or dumbbell and keep your palm facing up against resistance. Heaviest you can hold for 5 seconds = your max.”,
-vid:“bS3le7kusSg”, vidTitle:“Wrist Supination Isometric — How To” },
-{ id:“grip”, icon:“✊”, label:“Grip / Forearm Isometric”,
-how:“Squeeze a thick dumbbell handle or weight at absolute max effort. Track the heaviest weight you can grip firmly for 5 seconds = your max.”,
-search:“grip+strength+isometric+forearm+hold+dumbbell+exercise”, vidTitle:“How to: Grip Isometric Hold” },
+{ id:"ext",  icon:"💪", label:"Wrist Extension Isometric",
+how:"Rest forearm on a table, palm down, hand off edge. Extend wrist upward against a dumbbell and hold for 5 seconds at max effort. Heaviest you can hold with good form = your max.",
+vid:"MYd74BTpqBs", vidTitle:"Wrist Extension Isometric — How To" },
+{ id:"sup",  icon:"🔄", label:"Wrist Supination Isometric",
+how:"Elbow at 90°, arm at side. Hold a hammer or dumbbell and keep your palm facing up against resistance. Heaviest you can hold for 5 seconds = your max.",
+vid:"bS3le7kusSg", vidTitle:"Wrist Supination Isometric — How To" },
+{ id:"grip", icon:"✊", label:"Grip / Forearm Isometric",
+how:"Squeeze a thick dumbbell handle or weight at absolute max effort. Track the heaviest weight you can grip firmly for 5 seconds = your max.",
+search:"grip+strength+isometric+forearm+hold+dumbbell+exercise", vidTitle:"How to: Grip Isometric Hold" },
 ].map(ex => {
-const raw = S.loads[ex.id] || ‘’;
+const raw = S.loads[ex.id] || '';
 const max = parseFloat(raw);
 const valid = !isNaN(max) && max > 0;
 const t70 = valid ? Math.round(max * 0.70 * 2) / 2 : null;
@@ -676,7 +676,7 @@ const vidCard = vidCardURL
 ? `<a href="${vidCardURL}" target="_blank" rel="noopener" class="vid-card" style="margin-top:10px"> <div class="vid-thumb"> <img src="https://img.youtube.com/vi/${ex.vid}/mqdefault.jpg" alt=""/> <div class="vid-play"><div class="vid-play-icon"><span>▶</span></div></div> </div> <div class="vid-info"><p>${ex.vidTitle}</p><span>YouTube · tap to watch</span></div> </a>`
 : `<a href="https://www.youtube.com/results?search_query=${ex.search}" target="_blank" rel="noopener" class="vid-search" style="margin-top:10px"> <div class="vid-search-icon">▶</div> <div class="vid-search-info"><p>${ex.vidTitle}</p><span>Find demo videos on YouTube</span></div> </a>`;
 return ` <div class="calc-card"> <h4>${ex.icon} ${ex.label}</h4> <p class="calc-how">${ex.how}</p> <p class="calc-lbl">My max (${unit})</p> <div class="input-row"> <input type="number" id="input-${ex.id}" inputmode="decimal" min="0" step="0.5" value="${raw}" placeholder="${unit==='lbs'?'e.g. 20':'e.g. 10'}" oninput="setLoad('${ex.id}',this.value)"/> <span>${unit}</span> </div> ${result} ${vidCard} </div>`;
-}).join(’’);
+}).join('');
 
 return ` <div class="info-box"> <h3>How to Find Your Max (One-Time Test)</h3> <ol> <li>Pick up a dumbbell in your injured hand.</li> <li>Set up in the exercise position (see demos below).</li> <li>Hold at max effort for <strong>5 seconds</strong>.</li> <li>Too easy → add weight. Can't hold → reduce weight.</li> <li>Heaviest held with good form for 5s = your max.</li> <li>Your training weight = <strong>70% of that number</strong>.</li> </ol> <p class="tip">Re-test every 2–3 weeks as you get stronger and update below.</p> </div> <div class="unit-row"> <span>Units:</span> <button class="unit-btn${unit==='lbs'?' on':''}" onclick="setUnit('lbs')">lbs</button> <button class="unit-btn${unit==='kg'?' on':''}"  onclick="setUnit('kg')">kg</button> </div> ${cards} <div class="warn-box"><strong>📈 Tip:</strong> When 30s holds start feeling easy, re-test your max — it's likely gone up. Update your numbers here to keep training at the right intensity.</div>`;
 }
@@ -687,7 +687,7 @@ return ` <div class="info-box"> <h3>How to Find Your Max (One-Time Test)</h3> <o
 
 function buildRules() {
 const sources = ` <div class="sources-card"> <h3>About This Protocol</h3> <a href="https://youtu.be/GvxD0zn6-B4" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">🎬</div> <div class="src-text"> <p>Why Your Tendons Are Weak: The Science of Building Tendon Strength</p> <span>The Movement System · YouTube — the video that inspired this app</span> </div> </a> <a href="https://pubmed.ncbi.nlm.nih.gov/25979840/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Isometric exercise induces analgesia in tendinopathy</p> <span>Rio et al. 2015 · British Journal of Sports Medicine — supports isometric holds</span> </div> </a> <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5183725/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Vitamin C–enriched gelatin augments collagen synthesis</p> <span>Shaw et al. 2017 · AJCN — supports collagen + vitamin C supplementation</span> </div> </a> <a href="https://pubmed.ncbi.nlm.nih.gov/31577524/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Isometric exercise vs. wait-and-see for lateral elbow tendinopathy</p> <span>Vuvan et al. 2020 · Med Sci Sports Exerc — supports isometric protocol</span> </div> </a> </div>`;
-return sources + RULES.map(r => ` <div class="rule"> <div class="rule-icon">${r.icon}</div> <div><p class="rule-title">${r.title}</p><p class="rule-desc">${r.desc}</p></div> </div>`).join(’’);
+return sources + RULES.map(r => ` <div class="rule"> <div class="rule-icon">${r.icon}</div> <div><p class="rule-title">${r.title}</p><p class="rule-desc">${r.desc}</p></div> </div>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -709,7 +709,7 @@ function setWeek(w)    { setState({ currentWeek: w }); }
 function setUnit(u)    { setState({ loads: { ...S.loads, unit: u } }); }
 
 function setLoad(id, v) {
-// Update state directly — focus is preserved via render()’s focus restoration
+// Update state directly — focus is preserved via render()'s focus restoration
 S.loads = { ...S.loads, [id]: v };
 persist();
 render();
@@ -777,7 +777,7 @@ input.click();
 }
 
 function resetAll() {
-if (!confirm(“Reset ALL progress? This cannot be undone.”)) return;
+if (!confirm("Reset ALL progress? This cannot be undone.")) return;
 tCancel();
 S = { ...DEF };
 sets = {};
