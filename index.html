@@ -387,6 +387,8 @@ o.start(_audioCtx.currentTime); o.stop(_audioCtx.currentTime + 0.001);
 } catch(_) {}
 }
 
+function vib(ms=50) { try { navigator.vibrate(ms); } catch(_) {} }
+
 function beep(f=660, d=0.25) {
 try {
 const ctx = getAudioCtx();
@@ -403,11 +405,13 @@ function endToneHold() {
 // Two rising tones — signals "hold done, rest starting"
 beep(660, 0.4);
 setTimeout(() => beep(880, 0.6), 300);
+vib(200);
 }
 
 function endToneRest() {
 // Three ascending tones — signals "rest done, next set"
 [523, 659, 880].forEach((f, i) => setTimeout(() => beep(f, 0.45), i * 200));
+vib(200);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -437,6 +441,7 @@ keepAudioAlive();
 if (T.remaining <= 3 && T.remaining > 0 && T.remaining !== T.lastBeep) {
 T.lastBeep = T.remaining;
 beep(300 + T.remaining * 80, 0.15);
+vib(50);
 }
 if (T.remaining <= 0) tDone();
 }
