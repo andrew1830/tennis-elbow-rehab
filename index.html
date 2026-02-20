@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<title>Tennis Elbow Rehab</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100vh;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;color-scheme:light}
+#app{max-width:600px;margin:0 auto;padding:14px 14px 60px}
+
+/* ── Header ── */
+.hdr{background:linear-gradient(135deg,#4338ca,#7c3aed);border-radius:22px;padding:20px 20px 16px;color:#fff;margin-bottom:14px;box-shadow:0 4px 20px rgba(67,56,202,.35)}
+.hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.hdr h1{font-size:21px;font-weight:800;line-height:1.2}
+.hdr .sub{font-size:12px;color:rgba(255,255,255,.65);margin-bottom:8px}
+.hdr .save{font-size:11px;min-height:16px;margin-bottom:10px}
+.prog-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.prog-track{background:rgba(255,255,255,.2);border-radius:999px;height:9px}
+.prog-fill{background:#fff;border-radius:999px;height:9px;transition:width .5s}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:7px;margin-bottom:14px}
+.tab{flex:1;padding:10px 4px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;transition:all .15s}
+.tab.on{background:#4338ca;color:#fff;border-color:#4338ca;box-shadow:0 2px 10px rgba(67,56,202,.3)}
+
+/* ── Section headers ── */
+.sh{font-weight:700;color:#374151;font-size:14px;margin:14px 0 8px}
+.sh:first-child{margin-top:0}
+.snote{font-size:12px;color:#9ca3af;margin:-4px 0 8px}
+
+/* ── Phase cards ── */
+.phase{border:2px solid;border-radius:16px;overflow:hidden;margin-bottom:10px}
+.phase-hdr{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+.phase-hdr b{font-size:13px;font-weight:700}
+.phase-hdr small{font-size:11px;opacity:.9}
+.phase-body{padding:8px 14px 12px}
+.phase-prog{background:rgba(255,255,255,.45);border-radius:999px;height:3px;margin:6px 0 8px}
+.phase-prog-fill{height:3px;border-radius:999px;transition:width .4s}
+.phase-ex{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+.phase-ex-name{font-size:13px;color:#374151}
+.target-badge{background:#fff;border:1.5px solid;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.phase-note{font-size:11px;color:#6b7280;font-style:italic;margin-top:6px}
+.phase-video-link{display:flex;align-items:center;gap:8px;margin-top:8px;padding:7px 10px;background:rgba(255,255,255,.5);border-radius:10px;text-decoration:none}
+.phase-video-thumb{width:48px;height:27px;flex-shrink:0;border-radius:5px;overflow:hidden;position:relative}
+.phase-video-thumb img{width:100%;height:100%;object-fit:cover}
+.yt-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
+.yt-play-icon{width:16px;height:16px;background:#f00;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:7px;color:#fff;padding-left:2px}
+.phase-video-text p{font-size:11px;color:#374151;font-weight:600;margin:0}
+.phase-video-text span{font-size:10px;color:#6b7280}
+
+/* ── Week picker ── */
+.wk-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.wk-btn{position:relative;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;transition:all .15s}
+.wk-btn.on{color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.wk-dot{position:absolute;top:-4px;right:-4px;width:9px;height:9px;background:#4ade80;border-radius:50%;border:2px solid #f3f4f6}
+
+/* ── Calendar ── */
+.cal{border:2px solid;border-radius:16px;overflow:hidden;margin-bottom:14px}
+.cal-hdr{padding:10px 14px;display:flex;justify-content:space-between;color:#fff}
+.cal-hdr span{font-weight:700;font-size:14px}
+.cal-hdr small{font-size:12px;opacity:.9}
+.cal-body{padding:12px 10px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-col{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cal-lbl{font-size:10px;font-weight:700;color:#6b7280}
+.cal-day{width:38px;height:38px;border-radius:10px;font-size:17px;font-weight:800;cursor:pointer;border:2px solid #d1d5db;background:#fff;color:#d1d5db;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.cal-day.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.cal-rest{width:38px;height:38px;border-radius:10px;background:rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af}
+.cal-train-lbl{font-size:10px;color:#9ca3af}
+
+/* ── Session workout ── */
+.session-intro{background:linear-gradient(135deg,#eff6ff,#f5f3ff);border:1.5px solid #c7d2fe;border-radius:16px;padding:14px;margin-bottom:12px}
+.session-intro h3{font-size:14px;font-weight:700;color:#3730a3;margin-bottom:10px}
+
+.pre-check{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;-webkit-user-select:none;user-select:none}
+.pre-check:not(:last-child){border-bottom:1px solid rgba(99,102,241,.1)}
+.chkbox{width:22px;height:22px;border-radius:7px;flex-shrink:0;border:2px solid #c7d2fe;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.chkbox.on{background:#4338ca;border-color:#4338ca}
+.chkbox.on::after{content:“✓”;color:#fff;font-size:12px;font-weight:800}
+.chk-text{font-size:13px;color:#3730a3;font-weight:500}
+.chk-text.done{text-decoration:line-through;color:#a5b4fc}
+.chk-note{font-size:11px;color:#818cf8;margin-top:1px}
+
+.ex-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.ex-card.complete{border-color:#86efac;background:#f0fdf4}
+.ex-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+.ex-name{font-weight:700;font-size:15px;color:#111827}
+.ex-meta{font-size:11px;color:#9ca3af;margin-bottom:6px}
+.ex-how{font-size:12px;color:#6b7280;font-style:italic;margin-bottom:10px;line-height:1.5}
+
+.sets-row{display:flex;align-items:center;gap:5px;margin-bottom:10px}
+.sets-lbl{font-size:12px;color:#6b7280;font-weight:600}
+.dot{font-size:17px;line-height:1}
+.dot.done{color:#22c55e}
+.dot.empty{color:#d1d5db}
+.sets-count{font-size:12px;color:#6b7280;margin-left:2px}
+.undo-btn{margin-left:auto;font-size:11px;color:#d1d5db;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0}
+
+/* ── Timer ── */
+.timer-box{border-radius:14px;padding:14px;margin:8px 0}
+.timer-box.hold{background:#eef2ff;border:1.5px solid #a5b4fc}
+.timer-box.rest{background:#f0fdf4;border:1.5px solid #86efac}
+.timer-lbl{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px}
+.timer-num{font-size:52px;font-weight:800;text-align:center;line-height:1;margin-bottom:8px}
+.timer-num.hold{color:#4338ca}
+.timer-num.rest{color:#15803d}
+.timer-num.warn{color:#ef4444}
+.timer-track{border-radius:999px;height:6px;margin-bottom:12px}
+.timer-track.hold{background:#c7d2fe}
+.timer-track.rest{background:#bbf7d0}
+.timer-fill{height:6px;border-radius:999px;transition:width .8s linear}
+.timer-fill.hold{background:#4338ca}
+.timer-fill.rest{background:#22c55e}
+.timer-btns{display:flex;gap:8px}
+.t-btn{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280}
+.t-btn.skip{color:#6b7280}
+.t-btn.cancel{color:#ef4444;border-color:#fecaca}
+
+.start-btns{display:flex;gap:8px;margin:8px 0}
+.s-btn{flex:1;padding:13px 8px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;border:none}
+.s-btn.hold{background:#4338ca;color:#fff;box-shadow:0 2px 8px rgba(67,56,202,.3)}
+.s-btn.hold:active{background:#3730a3}
+.s-btn.rest{background:#f0fdf4;color:#15803d;border:1.5px solid #86efac}
+.s-btn.rest:active{background:#dcfce7}
+
+.complete-banner{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px;text-align:center;margin:8px 0}
+.complete-banner p{color:#15803d;font-weight:700;font-size:14px}
+.busy-note{font-size:12px;color:#9ca3af;margin:8px 0;font-style:italic}
+
+/* ── Video card ── */
+.vid-card{display:flex;gap:10px;align-items:center;padding:8px 10px;background:#f9fafb;border:1.5px solid #f3f4f6;border-radius:10px;text-decoration:none;margin-top:8px}
+.vid-thumb{width:70px;height:40px;flex-shrink:0;border-radius:7px;overflow:hidden;position:relative}
+.vid-thumb img{width:100%;height:100%;object-fit:cover}
+.vid-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
+.vid-play-icon{width:22px;height:22px;background:#ff0000;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.vid-play-icon span{color:#fff;font-size:9px;margin-left:2px}
+.vid-info p{font-size:12px;font-weight:600;color:#374151;margin:0}
+.vid-info span{font-size:11px;color:#9ca3af}
+
+/* ── Pain/post checks ── */
+.post-section{background:#fffbeb;border:1.5px solid #fde68a;border-radius:16px;padding:14px;margin-top:4px}
+.post-section h3{font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px}
+
+/* ── Load calculator ── */
+.info-box{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:14px;margin-bottom:14px}
+.info-box h3{font-weight:700;color:#1e40af;margin-bottom:8px;font-size:14px}
+.info-box ol{padding-left:18px;font-size:13px;color:#1d4ed8;line-height:1.9}
+.info-box .tip{font-size:12px;color:#3b82f6;margin-top:8px;font-style:italic}
+.warn-box{background:#fffbeb;border:1.5px solid #fde68a;border-radius:14px;padding:12px;margin-bottom:14px;font-size:13px;color:#92400e}
+.unit-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.unit-row span{font-size:13px;font-weight:600;color:#6b7280}
+.unit-btn{padding:6px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280;transition:all .15s}
+.unit-btn.on{background:#4338ca;color:#fff;border-color:#4338ca}
+.calc-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.calc-card h4{font-weight:700;font-size:14px;color:#111;margin-bottom:2px}
+.calc-how{font-size:12px;color:#9ca3af;font-style:italic;margin-bottom:12px;line-height:1.5}
+.calc-lbl{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em}
+.input-row{display:flex;gap:8px;align-items:center;margin:6px 0 12px}
+.input-row input{border:1.5px solid #d1d5db;border-radius:9px;padding:9px 12px;font-size:16px;width:130px;outline:none;font-family:inherit;background:#fff;-webkit-appearance:none;appearance:none}
+.input-row input:focus{border-color:#4338ca}
+.input-row span{font-size:13px;color:#6b7280}
+.result-good{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.result-good .big{font-size:30px;font-weight:800;color:#15803d;line-height:1}
+.result-good .big small{font-size:14px;font-weight:400}
+.result-good .rlbl{font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.result-good .rside{text-align:right;font-size:12px;color:#4ade80}
+.result-empty{background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px;font-size:13px;color:#9ca3af;font-style:italic}
+
+/* ── Search video card ── */
+.vid-search{display:flex;gap:10px;align-items:center;padding:9px 12px;background:#fff7f7;border:1.5px solid #fecaca;border-radius:10px;text-decoration:none;margin-top:8px}
+.vid-search-icon{width:36px;height:36px;flex-shrink:0;border-radius:7px;background:#ff0000;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;padding-left:2px}
+.vid-search-info p{font-size:12px;font-weight:600;color:#374151;margin:0}
+.vid-search-info span{font-size:11px;color:#9ca3af}
+
+/* ── Sources banner ── */
+.sources-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.sources-card h3{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.source-link{display:flex;align-items:center;gap:9px;padding:7px 0;text-decoration:none;border-bottom:1px solid #f3f4f6}
+.source-link:last-child{border-bottom:none;padding-bottom:0}
+.src-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.src-text p{font-size:12px;font-weight:600;color:#374151;margin:0}
+.src-text span{font-size:11px;color:#9ca3af}
+
+/* ── Rules ── */
+.rule{display:flex;gap:12px;padding:13px 14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.rule-icon{font-size:24px;flex-shrink:0;margin-top:1px}
+.rule-title{font-weight:700;font-size:13px;color:#111;margin-bottom:3px}
+.rule-desc{font-size:12px;color:#6b7280;line-height:1.6}
+
+/* ── Misc ── */
+.reset-lnk{font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;display:block;margin:6px 0 14px}
+.danger{font-size:12px;color:#fca5a5;background:none;border:none;cursor:pointer;text-decoration:underline}
+.footer-note{text-align:center;font-size:11px;color:#d1d5db;margin-top:10px}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+<script>
+
+// ═══════════════════════════════════════════════════════════
+//  1. CONSTANTS & DATA
+// ═══════════════════════════════════════════════════════════
+
+const SK  = “te-rehab-v5”;
+const SKS = “te-rehab-v5-session”;
+
+const WEEKS = 12;
+const DAYS  = [“Mon”,“Tue”,“Wed”,“Thu”,“Fri”,“Sat”,“Sun”];
+const TD    = [0,2,4]; // training day indices (Mon, Wed, Fri)
+
+// Exercise definitions (shared across phases)
+const EX_DEF = {
+ext: {
+id:“ext”, name:“Wrist Extension Isometric”, icon:“💪”,
+vid:“MYd74BTpqBs”,
+vidTitle:“Wrist Extension Isometric — How To”,
+},
+sup: {
+id:“sup”, name:“Wrist Supination Isometric”, icon:“🔄”,
+vid:“bS3le7kusSg”,
+vidTitle:“Wrist Supination Isometric — How To”,
+},
+grip: {
+id:“grip”, name:“Grip / Forearm Isometric”, icon:“✊”,
+search:“grip+strength+isometric+forearm+hold+dumbbell+exercise”,
+vidTitle:“How to: Grip Isometric Hold”,
+},
+};
+
+const PHASES = [
+{
+label:“Phase 1: Foundation”, weeks:“Weeks 1–3”, range:[1,3],
+bg:”#dbeafe”, border:”#93c5fd”, hdr:”#3b82f6”,
+exercises:[
+{ …EX_DEF.ext, sets:3,
+how:“Forearm resting on a table, palm down, hand hanging off the edge. Hold a dumbbell with your wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
+],
+note:“One exercise only. Focus on form and finding your working weight. Pain up to 4/10 is OK.”,
+},
+{
+label:“Phase 2: Build”, weeks:“Weeks 4–7”, range:[4,7],
+bg:”#fef3c7”, border:”#fcd34d”, hdr:”#f59e0b”,
+exercises:[
+{ …EX_DEF.ext, sets:4,
+how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Keep your wrist still and hold for 30 seconds.” },
+{ …EX_DEF.sup, sets:3,
+how:“Elbow bent at 90°, tucked at your side. Hold a hammer or dumbbell with your palm facing up. Resist any rotation and hold the position for 30 seconds.” },
+],
+note:“Add second exercise. Increase weight if 30s feels easy. Check pain baseline each morning.”,
+},
+{
+label:“Phase 3: Strengthen”, weeks:“Weeks 8–12”, range:[8,12],
+bg:”#dcfce7”, border:”#86efac”, hdr:”#22c55e”,
+exercises:[
+{ …EX_DEF.ext, sets:5,
+how:“Forearm on table, palm down, hand off edge. Hold a dumbbell with wrist extended upward. Hold for 30 seconds.” },
+{ …EX_DEF.sup, sets:4,
+how:“Elbow at 90°, arm at side. Hold a hammer/dumbbell with palm up. Resist rotation for 30 seconds.” },
+{ …EX_DEF.grip, sets:3,
+how:“Grip a thick dumbbell handle or weight firmly at max effort. Keep arm relaxed at your side and hold the squeeze for 30 seconds.” },
+],
+note:“All three exercises. Reintroduce light pickleball when pain is consistently ≤2/10.”,
+},
+];
+
+const RULES = [
+{ icon:“⏱️”, title:“30-second holds”,
+desc:“The minimum for the tendon stress-relaxation response that triggers healing. Don’t cut sets short — the full 30s is where the magic happens.” },
+{ icon:“💪”, title:“~70% of max effort”,
+desc:“Holds must be genuinely challenging. Light holds don’t provide enough stimulus. Use the My Loads tab to calculate your exact 70% training weight.” },
+{ icon:“📅”, title:“Every other day only”,
+desc:“Train Mon/Wed/Fri (or any every-other-day pattern). Rest days are essential — net collagen synthesis peaks ~36 hours after loading. Off days are when the tendon rebuilds.” },
+{ icon:“😬”, title:“Pain up to 4/10 is OK”,
+desc:“Some discomfort during the hold is acceptable. The critical rule: pain must return to its normal baseline within 24 hours. If worse next morning, reduce load or sets.” },
+{ icon:“🍋”, title:“Collagen + vitamin C before”,
+desc:“15g gelatin + 225mg vitamin C taken 30–60 min before training boosts collagen synthesis. Exercise then drives those amino acids directly to the loaded tendon.” },
+{ icon:“🏓”, title:“Reduce pickleball”,
+desc:“Fast explosive loading (backhands, hard dinking, smashes) stress-shields the damaged area and prevents healing. Cut back significantly — especially any motion that provokes pain.” },
+{ icon:“📈”, title:“Progress takes weeks, not days”,
+desc:“Expect 6–12 weeks for meaningful improvement. Research showed full tendon remodeling in as little as 2 months when the protocol was followed correctly and consistently.” },
+{ icon:“🔁”, title:“Advance your weights regularly”,
+desc:“Re-test your max every 2–3 weeks. When 30 seconds starts to feel easy, your tendon is getting stronger — update your loads in the My Loads tab and increase the weight.” },
+];
+
+// ═══════════════════════════════════════════════════════════
+//  2. STATE
+// ═══════════════════════════════════════════════════════════
+
+const DEF = {
+currentWeek:  1,
+sessionLog:   {},
+checks:       {}, // pre/post workout checks per session (persisted)
+loads:        { ext:””, sup:””, grip:””, unit:“lbs” },
+};
+
+let S = { …DEF }; // main persisted state
+let tab = “tracker”;
+let lastSaved = null;
+
+// Session-only (not persisted across days, but restored within same day)
+let sets = {}; // exId -> completed set count today
+
+// ═══════════════════════════════════════════════════════════
+//  3. STORAGE
+// ═══════════════════════════════════════════════════════════
+
+function persist() {
+try {
+localStorage.setItem(SK, JSON.stringify({
+currentWeek: S.currentWeek,
+sessionLog:  S.sessionLog,
+checks:      S.checks,
+loads:       S.loads,
+}));
+lastSaved = new Date().toLocaleString(undefined,{month:“short”,day:“numeric”,hour:“numeric”,minute:“2-digit”});
+return true;
+} catch(_) { return false; }
+}
+
+function hydrate() {
+try {
+const raw = localStorage.getItem(SK);
+if (raw) S = { …DEF, …JSON.parse(raw) };
+} catch(_) {}
+
+// Session sets: restore if same day, else start fresh
+try {
+const sr = localStorage.getItem(SKS);
+if (sr) {
+const sd = JSON.parse(sr);
+if (sd.date === new Date().toDateString()) sets = sd.sets || {};
+}
+} catch(_) {}
+}
+
+function persistSets() {
+try {
+localStorage.setItem(SKS, JSON.stringify({ date: new Date().toDateString(), sets }));
+} catch(_) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  4. AUDIO
+// ═══════════════════════════════════════════════════════════
+
+function beep(f=660, d=0.25) {
+try {
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const o = ctx.createOscillator(), g = ctx.createGain();
+o.connect(g); g.connect(ctx.destination);
+o.frequency.value = f;
+g.gain.setValueAtTime(0.35, ctx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d);
+o.start(ctx.currentTime); o.stop(ctx.currentTime + d);
+} catch(_) {}
+}
+
+function endToneHold() {
+// Two rising tones — signals “hold done, rest starting”
+beep(660, 0.4);
+setTimeout(() => beep(880, 0.6), 300);
+}
+
+function endToneRest() {
+// Three ascending tones — signals “rest done, next set”
+[523, 659, 880].forEach((f, i) => setTimeout(() => beep(f, 0.45), i * 200));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  5. TIMER
+// ═══════════════════════════════════════════════════════════
+
+const T = { active:false, exId:null, type:null, remaining:0, duration:0, iv:null };
+
+function tStart(exId, type) {
+tClear();
+T.active = true; T.exId = exId; T.type = type;
+T.duration = type === ‘hold’ ? 30 : 60;
+T.remaining = T.duration;
+render();
+tTick();
+T.iv = setInterval(tTick, 1000);
+}
+
+function tTick() {
+if (T.remaining > 0) T.remaining–;
+tDOM();
+if (T.remaining <= 5 && T.remaining > 0) beep(300 + T.remaining * 80, 0.15);
+if (T.remaining <= 0) tDone();
+}
+
+function tDone() {
+tClear();
+const exId = T.exId, type = T.type;
+if (type === ‘hold’) {
+endToneHold();
+T.active = true; // keep active for rest
+tStart(exId, ‘rest’);
+} else {
+endToneRest();
+T.active = false; T.exId = null; T.type = null;
+sets[exId] = (sets[exId] || 0) + 1;
+persistSets();
+render();
+}
+}
+
+function tSkip() {
+const exId = T.exId, type = T.type;
+tClear(); T.active = false;
+if (type === ‘hold’) {
+tStart(exId, ‘rest’);
+} else {
+T.exId = null; T.type = null;
+sets[exId] = (sets[exId] || 0) + 1;
+persistSets();
+render();
+}
+}
+
+function tCancel() {
+tClear(); T.active = false; T.exId = null; T.type = null;
+render();
+}
+
+function tClear() { clearInterval(T.iv); T.iv = null; }
+
+function tDOM() {
+const r = T.remaining, d = T.duration, type = T.type;
+const warn = r <= 5;
+const el = id => document.getElementById(id);
+const num = el(‘t-num’); const bar = el(‘t-bar’); const lbl = el(‘t-lbl’);
+if (num) {
+num.textContent = r + ‘s’;
+num.className = ’timer-num ’ + (warn ? ‘warn’ : type);
+}
+if (bar) {
+bar.style.width = Math.round(((d - r) / d) * 100) + ‘%’;
+}
+if (lbl) {
+if (type === ‘hold’) lbl.textContent = warn ? ‘⚡ Almost there!’ : ‘🏋️ Holding…’;
+else lbl.textContent = warn ? ‘⚡ Get ready!’ : ‘😮‍💨 Resting…’;
+}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  6. RENDER ENGINE
+// ═══════════════════════════════════════════════════════════
+
+function render() {
+// Snapshot focus state before wiping DOM
+const ae = document.activeElement;
+const focId = ae ? ae.id : null;
+const focSel = (ae && ae.selectionStart != null) ? ae.selectionStart : null;
+
+document.getElementById(‘app’).innerHTML = buildApp();
+
+// Restore focus & cursor
+if (focId) {
+const el = document.getElementById(focId);
+if (el) {
+el.focus();
+if (focSel != null) { try { el.setSelectionRange(focSel, focSel); } catch(_){} }
+}
+}
+
+// Resume timer DOM if active
+if (T.active) tDOM();
+}
+
+function setState(patch) {
+Object.assign(S, patch);
+persist();
+render();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  7. HTML BUILDERS
+// ═══════════════════════════════════════════════════════════
+
+function buildApp() {
+const total = WEEKS * TD.length;
+const done  = Object.values(S.sessionLog).filter(Boolean).length;
+const pct   = Math.round((done / total) * 100);
+const phase = phaseFor(S.currentWeek);
+return ` ${buildHeader(done, total, pct)} ${buildTabs()} ${tab === 'tracker' ? buildTracker(phase) : ''} ${tab === 'load'    ? buildLoads()        : ''} ${tab === 'rules'   ? buildRules()        : ''} <div style="text-align:center;margin-top:20px"> <button class="danger" onclick="resetAll()">Reset all progress</button> </div> <p class="footer-note">Not medical advice. If pain worsens after 4–6 weeks, see a physical therapist.</p>`;
+}
+
+// ── Header ──────────────────────────────────────────────────
+function buildHeader(done, total, pct) {
+const sv = lastSaved
+? `<span style="color:#86efac">✓ Saved · ${lastSaved}</span>`
+: `<span style="color:rgba(255,255,255,.55)">Auto-saves to this browser</span>`;
+return ` <div class="hdr"> <div class="hdr-top"><span style="font-size:30px">🎾</span><h1>Tennis Elbow Rehab</h1></div> <p class="sub">Lateral Epicondylitis · Isometric Protocol · 12 Weeks</p> <div class="save">${sv}</div> <div class="prog-row"><span>Overall Progress</span><span>${done} / ${total} · ${pct}%</span></div> <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div> </div>`;
+}
+
+// ── Tabs ─────────────────────────────────────────────────────
+function buildTabs() {
+return `<div class="tabs"> ${[['tracker','📅 Tracker'],['load','🏋️ My Loads'],['rules','📌 Rules']].map(([id,lbl]) => `<button class="tab${tab===id?' on':''}" onclick="setTab('${id}')">${lbl}</button>`
+).join(’’)}
+
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TRACKER TAB
+// ═══════════════════════════════════════════════════════════
+
+function buildTracker(phase) {
+return ` <p class="sh">Phases</p> ${PHASES.map(buildPhaseCard).join('')} <p class="sh" style="margin-top:16px">Week Tracker</p> <p class="snote">Select your week, then tap training days to log sessions.</p> ${buildWeekPicker()} ${buildCalendar(phase)} <p class="sh">Today's Session</p> <p class="snote">Work through each step below during your training session.</p> ${buildSession(phase)}`;
+}
+
+// Phase card (shows 70% target weight, not max)
+function buildPhaseCard(p) {
+const pt = (p.range[1]-p.range[0]+1)*TD.length;
+const pd = Object.entries(S.sessionLog).filter(([k,v])=>{const w=parseInt(k);return v&&w>=p.range[0]&&w<=p.range[1];}).length;
+const pp = Math.round((pd/pt)*100);
+const exHTML = p.exercises.map(ex => {
+const raw = S.loads[ex.id];
+const t70 = calc70(raw);
+const unit = S.loads.unit;
+let badge = ‘’;
+if (t70) {
+badge = `<span class="target-badge" style="color:${p.hdr};border-color:${p.border}">${t70} ${unit}</span>`;
+}
+return `<div class="phase-ex"> <span class="phase-ex-name">${ex.name} — ${ex.sets}×30s</span>${badge} </div>`;
+}).join(’’);
+// Video link for each exercise in the phase
+const vidHTML = p.exercises.map(ex => {
+const url = ex.vid
+? (ex.vid.length > 11 ? `https://youtu.be/${ex.vid}` : `https://www.youtube.com/shorts/${ex.vid}`)
+: `https://www.youtube.com/results?search_query=${ex.search}`;
+const sub = ex.vid ? ‘YouTube · tap to watch’ : ‘Search YouTube for demos’;
+return ` <a href="${url}" target="_blank" rel="noopener" class="phase-video-link"> <div class="phase-video-thumb" style="background:#ff0000;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px">▶</div> <div class="phase-video-text"> <p>${ex.name}</p> <span>${sub}</span> </div> </a>`;
+}).join(’’);
+return ` <div class="phase" style="border-color:${p.border};background:${p.bg}"> <div class="phase-hdr" style="background:${p.hdr}"> <b>${p.label}</b><small>${p.weeks} · ${pd}/${pt} sessions</small> </div> <div class="phase-body"> <div class="phase-prog"> <div class="phase-prog-fill" style="background:${p.hdr};width:${pp}%"></div> </div> ${exHTML} <p class="phase-note">${p.note}</p> ${vidHTML} </div> </div>`;
+}
+
+// Week picker
+function buildWeekPicker() {
+const btns = Array.from({length:WEEKS},(_,i)=>i+1).map(w => {
+const p   = phaseFor(w);
+const sel = w === S.currentWeek;
+const full = TD.filter(d=>S.sessionLog[`${w}-${d}`]).length === TD.length;
+return `<div style="position:relative"> <button class="wk-btn${sel?' on':''}" style="${sel?`background:${p.hdr};border-color:${p.hdr}`:''}" onclick="setWeek(${w})">W${w}</button> ${full?`<span class="wk-dot"></span>`:''} </div>`;
+}).join(’’);
+return `<div class="wk-grid">${btns}</div>`;
+}
+
+// Calendar
+function buildCalendar(phase) {
+const cols = DAYS.map((day,di) => {
+const train = TD.includes(di);
+const done  = S.sessionLog[`${S.currentWeek}-${di}`];
+if (train) return ` <div class="cal-col"> <span class="cal-lbl">${day}</span> <button class="cal-day${done?' done':''}" onclick="toggleDay(${S.currentWeek},${di})">${done?'✓':'○'}</button> <span class="cal-train-lbl">train</span> </div>`;
+return ` <div class="cal-col"> <span class="cal-lbl">${day}</span> <div class="cal-rest">rest</div> </div>`;
+}).join(’’);
+return ` <div class="cal" style="border-color:${phase.border}"> <div class="cal-hdr" style="background:${phase.hdr}"> <span>Week ${S.currentWeek}</span><small>${phase.label}</small> </div> <div class="cal-body"><div class="cal-grid">${cols}</div></div> </div>`;
+}
+
+// ── Today’s Session ──────────────────────────────────────────
+
+function buildSession(phase) {
+const preHTML = ` <div class="session-intro"> <h3>⚡ Pre-Workout</h3> ${buildCheck('collagen','Took 15g collagen/gelatin + 225mg vitamin C','30–60 min before training','#a5b4fc','#3730a3')} ${buildCheck('warmup','Completed forearm warm-up — wrist circles 2 min','Before starting exercises','#a5b4fc','#3730a3')} </div>`;
+
+const exHTML = phase.exercises.map(buildExerciseCard).join(’’);
+
+const postHTML = ` <div class="post-section"> <h3>✅ Post-Workout Check</h3> ${buildCheck('pain','Pain stayed at ≤4/10 during the session','If not, reduce load next session','#fcd34d','#92400e')} ${buildCheck('nextday','I\'ll check pain levels tomorrow morning','Should be at your normal baseline by morning','#fcd34d','#92400e')} </div> <button class="reset-lnk" onclick="resetChecks()">Reset pre/post checks for next session</button>`;
+
+return preHTML + exHTML + postHTML;
+}
+
+function buildCheck(id, label, note, bdColor, txtColor) {
+const on = S.checks[id];
+return ` <div class="pre-check" onclick="toggleCheck('${id}')"> <div class="chkbox${on?' on':''}"></div> <div> <p class="chk-text${on?' done':''}" style="color:${on?bdColor:txtColor}">${label}</p> <p class="chk-note" style="color:${bdColor}">${note}</p> </div> </div>`;
+}
+
+function buildExerciseCard(ex) {
+const target = calc70(S.loads[ex.id]);
+const unit   = S.loads.unit;
+const done   = sets[ex.id] || 0;
+const total  = ex.sets;
+const full   = done >= total;
+const timerMe    = T.active && T.exId === ex.id;
+const timerOther = T.active && T.exId !== ex.id;
+
+// Set dots
+const dots = Array.from({length:total},(_,i) =>
+`<span class="dot${i<done?' done':' empty'}">${i<done?'●':'○'}</span>`
+).join(’’);
+
+// Weight badge
+const wBadge = target
+? `<span style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:999px;padding:2px 10px;font-size:11px;font-weight:700;color:#15803d;white-space:nowrap">${target} ${unit}</span>`
+: `<span style="background:#fef3c7;border:1.5px solid #fde68a;border-radius:999px;padding:2px 10px;font-size:11px;color:#92400e;white-space:nowrap">Add load</span>`;
+
+// Timer display
+let timerHTML = ‘’;
+if (timerMe) {
+const pct = Math.round(((T.duration - T.remaining) / T.duration) * 100);
+timerHTML = ` <div class="timer-box ${T.type}"> <p class="timer-lbl" id="t-lbl">${T.type==='hold'?'🏋️ Holding...':'😮‍💨 Resting...'}</p> <div class="timer-num ${T.type}" id="t-num">${T.remaining}s</div> <div class="timer-track ${T.type}"> <div class="timer-fill ${T.type}" id="t-bar" style="width:${pct}%"></div> </div> <div class="timer-btns"> <button class="t-btn skip" onclick="tSkip()">⏭ Skip</button> <button class="t-btn cancel" onclick="tCancel()">✕ Cancel</button> </div> </div>`;
+} else if (full) {
+timerHTML = ` <div class="complete-banner"> <p>✅ All ${total} sets complete!</p> <button onclick="resetExercise('${ex.id}')" style="margin-top:8px;font-size:12px;color:#15803d;background:none;border:1.5px solid #86efac;border-radius:8px;padding:5px 14px;cursor:pointer;font-weight:600">Reset exercise</button> </div>`;
+} else if (timerOther) {
+timerHTML = `<p class="busy-note">Finish the active timer before starting this exercise.</p>`;
+} else {
+timerHTML = ` <div class="start-btns"> <button class="s-btn hold" onclick="tStart('${ex.id}','hold')">▶ Start 30s Hold</button> <button class="s-btn rest" onclick="tStart('${ex.id}','rest')">⏸ Rest 60s</button> </div>`;
+}
+
+// Video card — direct link with thumbnail if vid ID provided, else YouTube search
+const vidURL = ex.vid
+? (ex.vid.length > 11 ? `https://youtu.be/${ex.vid}` : `https://www.youtube.com/shorts/${ex.vid}`)
+: null;
+const vidHTML = vidURL
+? `<a href="${vidURL}" target="_blank" rel="noopener" class="vid-card"> <div class="vid-thumb"> <img src="https://img.youtube.com/vi/${ex.vid}/mqdefault.jpg" alt=""/> <div class="vid-play"><div class="vid-play-icon"><span>▶</span></div></div> </div> <div class="vid-info"> <p>${ex.vidTitle}</p> <span>YouTube · tap to watch</span> </div> </a>`
+: `<a href="https://www.youtube.com/results?search_query=${ex.search}" target="_blank" rel="noopener" class="vid-search"> <div class="vid-search-icon">▶</div> <div class="vid-search-info"> <p>${ex.vidTitle}</p> <span>Find demo videos on YouTube</span> </div> </a>`;
+
+return `<div class="ex-card${full?' complete':''}"> <div class="ex-top"> <div> <p class="ex-name">${ex.icon} ${ex.name}</p> <p class="ex-meta">${total} sets × 30s hold + 60s rest · 70% effort</p> </div> ${wBadge} </div> <p class="ex-how">${ex.how}</p> <div class="sets-row"> <span class="sets-lbl">Sets:</span> ${dots} <span class="sets-count">${done}/${total}</span> ${done > 0 ?`<button class="undo-btn" onclick="undoSet('${ex.id}')">undo last</button>` : ''} </div> ${timerHTML} ${vidHTML} </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MY LOADS TAB
+// ═══════════════════════════════════════════════════════════
+
+function buildLoads() {
+const unit = S.loads.unit;
+const cards = [
+{ id:“ext”,  icon:“💪”, label:“Wrist Extension Isometric”,
+how:“Rest forearm on a table, palm down, hand off edge. Extend wrist upward against a dumbbell and hold for 5 seconds at max effort. Heaviest you can hold with good form = your max.”,
+vid:“MYd74BTpqBs”, vidTitle:“Wrist Extension Isometric — How To” },
+{ id:“sup”,  icon:“🔄”, label:“Wrist Supination Isometric”,
+how:“Elbow at 90°, arm at side. Hold a hammer or dumbbell and keep your palm facing up against resistance. Heaviest you can hold for 5 seconds = your max.”,
+vid:“bS3le7kusSg”, vidTitle:“Wrist Supination Isometric — How To” },
+{ id:“grip”, icon:“✊”, label:“Grip / Forearm Isometric”,
+how:“Squeeze a thick dumbbell handle or weight at absolute max effort. Track the heaviest weight you can grip firmly for 5 seconds = your max.”,
+search:“grip+strength+isometric+forearm+hold+dumbbell+exercise”, vidTitle:“How to: Grip Isometric Hold” },
+].map(ex => {
+const raw = S.loads[ex.id] || ‘’;
+const max = parseFloat(raw);
+const valid = !isNaN(max) && max > 0;
+const t70 = valid ? Math.round(max * 0.70 * 2) / 2 : null;
+const result = valid
+? `<div class="result-good"> <div><p class="rlbl">Your 70% Training Target</p><p class="big">${t70}<small> ${unit}</small></p></div> <div class="rside"><p>Max: ${max} ${unit}</p><p>Target: ${t70} ${unit}</p></div> </div>`
+: `<div class="result-empty">Enter your max above to calculate your training weight.</div>`;
+const vidCardURL = ex.vid
+? (ex.vid.length > 11 ? `https://youtu.be/${ex.vid}` : `https://www.youtube.com/shorts/${ex.vid}`)
+: null;
+const vidCard = vidCardURL
+? `<a href="${vidCardURL}" target="_blank" rel="noopener" class="vid-card" style="margin-top:10px"> <div class="vid-thumb"> <img src="https://img.youtube.com/vi/${ex.vid}/mqdefault.jpg" alt=""/> <div class="vid-play"><div class="vid-play-icon"><span>▶</span></div></div> </div> <div class="vid-info"><p>${ex.vidTitle}</p><span>YouTube · tap to watch</span></div> </a>`
+: `<a href="https://www.youtube.com/results?search_query=${ex.search}" target="_blank" rel="noopener" class="vid-search" style="margin-top:10px"> <div class="vid-search-icon">▶</div> <div class="vid-search-info"><p>${ex.vidTitle}</p><span>Find demo videos on YouTube</span></div> </a>`;
+return ` <div class="calc-card"> <h4>${ex.icon} ${ex.label}</h4> <p class="calc-how">${ex.how}</p> <p class="calc-lbl">My max (${unit})</p> <div class="input-row"> <input type="number" id="input-${ex.id}" inputmode="decimal" min="0" step="0.5" value="${raw}" placeholder="${unit==='lbs'?'e.g. 20':'e.g. 10'}" oninput="setLoad('${ex.id}',this.value)"/> <span>${unit}</span> </div> ${result} ${vidCard} </div>`;
+}).join(’’);
+
+return ` <div class="info-box"> <h3>How to Find Your Max (One-Time Test)</h3> <ol> <li>Pick up a dumbbell in your injured hand.</li> <li>Set up in the exercise position (see demos below).</li> <li>Hold at max effort for <strong>5 seconds</strong>.</li> <li>Too easy → add weight. Can't hold → reduce weight.</li> <li>Heaviest held with good form for 5s = your max.</li> <li>Your training weight = <strong>70% of that number</strong>.</li> </ol> <p class="tip">Re-test every 2–3 weeks as you get stronger and update below.</p> </div> <div class="unit-row"> <span>Units:</span> <button class="unit-btn${unit==='lbs'?' on':''}" onclick="setUnit('lbs')">lbs</button> <button class="unit-btn${unit==='kg'?' on':''}"  onclick="setUnit('kg')">kg</button> </div> ${cards} <div class="warn-box"><strong>📈 Tip:</strong> When 30s holds start feeling easy, re-test your max — it's likely gone up. Update your numbers here to keep training at the right intensity.</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RULES TAB
+// ═══════════════════════════════════════════════════════════
+
+function buildRules() {
+const sources = ` <div class="sources-card"> <h3>About This Protocol</h3> <a href="https://youtu.be/GvxD0zn6-B4" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">🎬</div> <div class="src-text"> <p>Why Your Tendons Are Weak: The Science of Building Tendon Strength</p> <span>The Movement System · YouTube — the video that inspired this app</span> </div> </a> <a href="https://pubmed.ncbi.nlm.nih.gov/25979840/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Isometric exercise induces analgesia in tendinopathy</p> <span>Rio et al. 2015 · British Journal of Sports Medicine — supports isometric holds</span> </div> </a> <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5183725/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Vitamin C–enriched gelatin augments collagen synthesis</p> <span>Shaw et al. 2017 · AJCN — supports collagen + vitamin C supplementation</span> </div> </a> <a href="https://pubmed.ncbi.nlm.nih.gov/31577524/" target="_blank" rel="noopener" class="source-link"> <div class="src-icon">📄</div> <div class="src-text"> <p>Isometric exercise vs. wait-and-see for lateral elbow tendinopathy</p> <span>Vuvan et al. 2020 · Med Sci Sports Exerc — supports isometric protocol</span> </div> </a> </div>`;
+return sources + RULES.map(r => ` <div class="rule"> <div class="rule-icon">${r.icon}</div> <div><p class="rule-title">${r.title}</p><p class="rule-desc">${r.desc}</p></div> </div>`).join(’’);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  8. HELPERS & EVENT HANDLERS
+// ═══════════════════════════════════════════════════════════
+
+function phaseFor(w) {
+return PHASES.find(p => w >= p.range[0] && w <= p.range[1]) || PHASES[2];
+}
+
+function calc70(rawStr) {
+const n = parseFloat(rawStr);
+if (!rawStr || isNaN(n) || n <= 0) return null;
+return Math.round(n * 0.70 * 2) / 2; // round to nearest 0.5
+}
+
+function setTab(t)     { tab = t; render(); }
+function setWeek(w)    { setState({ currentWeek: w }); }
+function setUnit(u)    { setState({ loads: { …S.loads, unit: u } }); }
+
+function setLoad(id, v) {
+// Update state directly — focus is preserved via render()’s focus restoration
+S.loads = { …S.loads, [id]: v };
+persist();
+render();
+}
+
+function toggleDay(week, di) {
+const key = `${week}-${di}`;
+setState({ sessionLog: { …S.sessionLog, [key]: !S.sessionLog[key] } });
+}
+
+function toggleCheck(id) {
+setState({ checks: { …S.checks, [id]: !S.checks[id] } });
+}
+
+function resetChecks() {
+setState({ checks: {} });
+}
+
+function undoSet(exId) {
+sets[exId] = Math.max(0, (sets[exId] || 0) - 1);
+persistSets();
+render();
+}
+
+function resetExercise(exId) {
+sets[exId] = 0;
+persistSets();
+render();
+}
+
+function resetAll() {
+if (!confirm(“Reset ALL progress? This cannot be undone.”)) return;
+tCancel();
+S = { …DEF };
+sets = {};
+lastSaved = null;
+persist();
+persistSets();
+render();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  9. BOOT
+// ═══════════════════════════════════════════════════════════
+
+hydrate();
+render();
+
+</script>
+</body>
+</html>
