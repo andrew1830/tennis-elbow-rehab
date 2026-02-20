@@ -122,6 +122,12 @@ html,body{min-height:100vh;background:#f3f4f6;font-family:-apple-system,BlinkMac
 .t-btn{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #e5e7eb;background:#fff;color:#6b7280}
 .t-btn.skip{color:#6b7280}
 .t-btn.cancel{color:#ef4444;border-color:#fecaca}
+@keyframes timer-glow{0%,100%{box-shadow:0 0 4px rgba(239,68,68,.2)}50%{box-shadow:0 0 18px rgba(239,68,68,.55),0 0 40px rgba(239,68,68,.2)}}
+@keyframes num-pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes done-flash{0%{box-shadow:0 0 30px rgba(239,68,68,.6)}100%{box-shadow:0 0 0 rgba(239,68,68,0)}}
+.timer-box.pulse{animation:timer-glow .8s ease-in-out infinite;border-color:#f87171}
+.timer-num.pop{animation:num-pop .3s ease-out}
+.timer-box.done-flash{animation:done-flash .6s ease-out forwards}
 
 .start-btns{display:flex;gap:8px;margin:8px 0}
 .s-btn{flex:1;padding:13px 8px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;border:none}
@@ -448,6 +454,9 @@ if (T.remaining <= 0) tDone();
 
 function tDone() {
 tClear();
+// Trigger completion flash on the timer box before it gets replaced
+const box = document.getElementById('t-box');
+if (box) { box.classList.remove('pulse'); box.classList.add('done-flash'); }
 const exId = T.exId, type = T.type;
 if (type === 'hold') {
 endToneHold();
@@ -485,11 +494,23 @@ function tClear() { clearInterval(T.iv); T.iv = null; }
 function tDOM() {
 const r = T.remaining, d = T.duration, type = T.type;
 const warn = r <= 5;
+const countdown = r <= 3 && r > 0;
 const el = id => document.getElementById(id);
-const num = el('t-num'); const bar = el('t-bar'); const lbl = el('t-lbl');
+const box = el('t-box'); const num = el('t-num'); const bar = el('t-bar'); const lbl = el('t-lbl');
+if (box) {
+box.className = 'timer-box ' + type + (countdown ? ' pulse' : '');
+}
 if (num) {
 num.textContent = r + 's';
-num.className = 'timer-num ' + (warn ? 'warn' : type);
+const cls = 'timer-num ' + (warn ? 'warn' : type);
+if (countdown && r !== T.lastBeep) {
+// Restart pop animation by removing and re-adding class
+num.className = cls;
+void num.offsetWidth;
+num.className = cls + ' pop';
+} else if (!countdown) {
+num.className = cls;
+}
 }
 if (bar) {
 bar.style.width = Math.round(((d - r) / d) * 100) + '%';
@@ -659,7 +680,7 @@ const wBadge = target
 let timerHTML = '';
 if (timerMe) {
 const pct = Math.round(((T.duration - T.remaining) / T.duration) * 100);
-timerHTML = ` <div class="timer-box ${T.type}"> <p class="timer-lbl" id="t-lbl">${T.type==='hold'?'🏋️ Holding...':'😮‍💨 Resting...'}</p> <div class="timer-num ${T.type}" id="t-num">${T.remaining}s</div> <div class="timer-track ${T.type}"> <div class="timer-fill ${T.type}" id="t-bar" style="width:${pct}%"></div> </div> <div class="timer-btns"> <button class="t-btn skip" onclick="tSkip()">⏭ Skip</button> <button class="t-btn cancel" onclick="tCancel()">✕ Cancel</button> </div> </div>`;
+timerHTML = ` <div class="timer-box ${T.type}" id="t-box"> <p class="timer-lbl" id="t-lbl">${T.type==='hold'?'🏋️ Holding...':'😮‍💨 Resting...'}</p> <div class="timer-num ${T.type}" id="t-num">${T.remaining}s</div> <div class="timer-track ${T.type}"> <div class="timer-fill ${T.type}" id="t-bar" style="width:${pct}%"></div> </div> <div class="timer-btns"> <button class="t-btn skip" onclick="tSkip()">⏭ Skip</button> <button class="t-btn cancel" onclick="tCancel()">✕ Cancel</button> </div> </div>`;
 } else if (full) {
 timerHTML = ` <div class="complete-banner"> <p>✅ All ${total} sets complete!</p> <button onclick="resetExercise('${ex.id}')" style="margin-top:8px;font-size:12px;color:#15803d;background:none;border:1.5px solid #86efac;border-radius:8px;padding:5px 14px;cursor:pointer;font-weight:600">Reset exercise</button> </div>`;
 } else if (timerOther) {
