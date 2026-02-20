@@ -391,6 +391,7 @@ const T = { active:false, exId:null, type:null, remaining:0, duration:0, endTime
 
 function tStart(exId, type) {
 tClear();
+getAudioCtx();                    // unlock audio on user tap (iOS)
 T.active = true; T.exId = exId; T.type = type;
 T.duration = type === 'hold' ? 30 : 60;
 T.endTime = Date.now() + T.duration * 1000;
@@ -405,7 +406,7 @@ function tTick() {
 const prev = T.remaining;
 T.remaining = Math.max(0, Math.ceil((T.endTime - Date.now()) / 1000));
 tDOM();
-if (T.remaining <= 5 && T.remaining > 0 && T.remaining !== T.lastBeep) {
+if (T.remaining <= 3 && T.remaining > 0 && T.remaining !== T.lastBeep) {
 T.lastBeep = T.remaining;
 beep(300 + T.remaining * 80, 0.15);
 }
