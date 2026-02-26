@@ -200,6 +200,16 @@ html,body{min-height:100vh;background:#f3f4f6;font-family:-apple-system,BlinkMac
 .rule-title{font-weight:700;font-size:13px;color:#111;margin-bottom:3px}
 .rule-desc{font-size:12px;color:#6b7280;line-height:1.6}
 
+/* ── Warmup timer ── */
+.wu-start-btn{display:block;width:100%;margin-top:8px;padding:8px;background:rgba(67,56,202,.08);border:1.5px dashed #a5b4fc;border-radius:10px;color:#4338ca;font-size:12px;font-weight:600;cursor:pointer;text-align:center}
+.wu-timer-box{margin-top:8px;padding:8px 10px;background:rgba(67,56,202,.08);border:1.5px solid #a5b4fc;border-radius:10px}
+.wu-timer-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.wu-timer-lbl{font-size:12px;color:#4338ca;font-weight:600;flex:1}
+.wu-timer-num{font-size:20px;font-weight:800;color:#4338ca}
+.wu-cancel-btn{font-size:11px;color:#818cf8;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px}
+.wu-timer-track{background:#c7d2fe;border-radius:999px;height:4px}
+.wu-timer-fill{height:4px;background:#4338ca;border-radius:999px;transition:width .8s linear}
+
 /* ── Misc ── */
 .reset-lnk{font-size:12px;color:#9ca3af;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;display:block;margin:6px 0 14px}
 .danger{font-size:12px;color:#fca5a5;background:none;border:none;cursor:pointer;text-decoration:underline}
@@ -425,6 +435,44 @@ vib(200);
 // ═══════════════════════════════════════════════════════════
 
 const T = { active:false, exId:null, type:null, remaining:0, duration:0, endTime:0, lastBeep:-1, iv:null };
+const W = { active:false, remaining:0, duration:120, endTime:0, iv:null };
+
+function wStart() {
+if (W.active) return;
+unlockAudio();
+clearInterval(W.iv);
+W.active = true; W.duration = 120;
+W.endTime = Date.now() + W.duration * 1000;
+W.remaining = W.duration;
+render();
+wTick();
+W.iv = setInterval(wTick, 250);
+}
+
+function wTick() {
+W.remaining = Math.max(0, Math.ceil((W.endTime - Date.now()) / 1000));
+wDOM();
+if (W.remaining <= 0) wDone();
+}
+
+function wDone() {
+clearInterval(W.iv); W.iv = null; W.active = false;
+beep(660, 0.4); setTimeout(() => beep(880, 0.6), 300); vib(300);
+if (!S.checks.warmup) setState({ checks: { ...S.checks, warmup: true } });
+else render();
+}
+
+function wCancel() {
+clearInterval(W.iv); W.iv = null; W.active = false;
+render();
+}
+
+function wDOM() {
+const numEl = document.getElementById('w-num');
+const barEl = document.getElementById('w-bar');
+if (numEl) { const m = Math.floor(W.remaining/60), s = W.remaining%60; numEl.textContent = m+':'+String(s).padStart(2,'0'); }
+if (barEl) { barEl.style.width = Math.round(((W.duration - W.remaining) / W.duration) * 100) + '%'; }
+}
 
 function tStart(exId, type) {
 tClear();
@@ -548,6 +596,7 @@ if (focSel != null) { try { el.setSelectionRange(focSel, focSel); } catch(_){} }
 
 // Resume timer DOM if active
 if (T.active) tDOM();
+if (W.active) wDOM();
 }
 
 function setState(patch) {
@@ -643,7 +692,10 @@ return ` <div class="cal" style="border-color:${phase.border}"> <div class="cal-
 // ── Today's Session ──────────────────────────────────────────
 
 function buildSession(phase) {
-const preHTML = ` <div class="session-intro"> <h3>⚡ Pre-Workout</h3> ${buildCheck('collagen','Took 15g collagen/gelatin + 225mg vitamin C','30–60 min before training','#a5b4fc','#3730a3')} ${buildCheck('warmup','Completed forearm warm-up — wrist circles 2 min','Before starting exercises','#a5b4fc','#3730a3')} </div>`;
+const warmupTimerHTML = S.checks.warmup ? '' : W.active
+? `<div class="wu-timer-box"><div class="wu-timer-row"><span class="wu-timer-lbl">⏱ Warmup timer</span><span class="wu-timer-num" id="w-num">2:00</span><button class="wu-cancel-btn" onclick="wCancel()">✕ Cancel</button></div><div class="wu-timer-track"><div class="wu-timer-fill" id="w-bar" style="width:0%"></div></div></div>`
+: `<button class="wu-start-btn" onclick="wStart()">▶ Start 2-min Warmup Timer</button>`;
+const preHTML = ` <div class="session-intro"> <h3>⚡ Pre-Workout</h3> ${buildCheck('collagen','Took 15g collagen/gelatin + 225mg vitamin C','30–60 min before training','#a5b4fc','#3730a3')} ${buildCheck('warmup','Completed forearm warm-up — wrist circles 2 min','Before starting exercises','#a5b4fc','#3730a3')} ${warmupTimerHTML} </div>`;
 
 const exHTML = phase.exercises.map(buildExerciseCard).join('');
 
@@ -717,7 +769,7 @@ vid:"bS3le7kusSg", vidTitle:"Wrist Supination Isometric — How To" },
 how:"Squeeze a thick dumbbell handle or weight at absolute max effort. Track the heaviest weight you can grip firmly for 5 seconds = your max.",
 vid:"RJf3s7r6GPU", vidTitle:"How to: Grip Isometric Hold" },
 ].map(ex => {
-const raw = S.loads[ex.id] || '';
+const raw = escHtml(S.loads[ex.id] || '');
 const max = parseFloat(raw);
 const valid = !isNaN(max) && max > 0;
 const t70 = valid ? Math.round(max * 0.70 * 2) / 2 : null;
@@ -757,6 +809,10 @@ function calc70(rawStr) {
 const n = parseFloat(rawStr);
 if (!rawStr || isNaN(n) || n <= 0) return null;
 return Math.round(n * 0.70 * 2) / 2; // round to nearest 0.5
+}
+
+function escHtml(s) {
+return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function setTab(t)     { tab = t; render(); }
@@ -813,14 +869,22 @@ input.accept = '.json';
 input.onchange = e => {
 const file = e.target.files[0];
 if (!file) return;
+if (file.size > 512 * 1024) { alert('Backup file is too large (max 512 KB).'); return; }
 const reader = new FileReader();
 reader.onload = evt => {
 try {
 const data = JSON.parse(evt.target.result);
-if (!data.state || !data.version) { alert('Invalid backup file.'); return; }
-if (!confirm(`Restore backup from ${data.exportDate ? new Date(data.exportDate).toLocaleDateString() : 'unknown date'}? This will replace your current data.`)) return;
+if (!data.state || typeof data.state !== 'object' || !data.version) { alert('Invalid backup file.'); return; }
+if (typeof data.state.currentWeek !== 'number') data.state.currentWeek = DEF.currentWeek;
+if (typeof data.state.loads !== 'object' || !data.state.loads) data.state.loads = { ...DEF.loads };
+if (typeof data.state.sessionLog !== 'object' || !data.state.sessionLog) data.state.sessionLog = {};
+if (typeof data.state.checks !== 'object' || !data.state.checks) data.state.checks = {};
+if (data.sets && typeof data.sets !== 'object') data.sets = {};
+const rawDate = data.exportDate;
+const parsedDate = rawDate && !isNaN(new Date(rawDate)) ? new Date(rawDate).toLocaleDateString() : 'unknown date';
+if (!confirm(`Restore backup from ${parsedDate}? This will replace your current data.`)) return;
 S = { ...DEF, ...data.state };
-if (data.sets) sets = data.sets;
+if (data.sets && typeof data.sets === 'object') sets = data.sets;
 persist();
 persistSets();
 render();
