@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#4338ca"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' https://img.youtube.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"/>
 <link rel="manifest" href="manifest.json"/>
 <title>Tennis Elbow Rehab</title>
 <style>
@@ -875,16 +876,28 @@ reader.onload = evt => {
 try {
 const data = JSON.parse(evt.target.result);
 if (!data.state || typeof data.state !== 'object' || !data.version) { alert('Invalid backup file.'); return; }
-if (typeof data.state.currentWeek !== 'number') data.state.currentWeek = DEF.currentWeek;
-if (typeof data.state.loads !== 'object' || !data.state.loads) data.state.loads = { ...DEF.loads };
-if (typeof data.state.sessionLog !== 'object' || !data.state.sessionLog) data.state.sessionLog = {};
-if (typeof data.state.checks !== 'object' || !data.state.checks) data.state.checks = {};
-if (data.sets && typeof data.sets !== 'object') data.sets = {};
+// Build a clean state from an explicit whitelist of known keys to prevent prototype pollution
+const safeState = {};
+for (const key of ['currentWeek','sessionLog','checks','loads']) {
+if (Object.prototype.hasOwnProperty.call(data.state, key)) safeState[key] = data.state[key];
+}
+if (typeof safeState.currentWeek !== 'number' || safeState.currentWeek < 1 || safeState.currentWeek > WEEKS) safeState.currentWeek = DEF.currentWeek;
+if (typeof safeState.loads !== 'object' || !safeState.loads) safeState.loads = { ...DEF.loads };
+if (typeof safeState.sessionLog !== 'object' || !safeState.sessionLog) safeState.sessionLog = {};
+if (typeof safeState.checks !== 'object' || !safeState.checks) safeState.checks = {};
+// Build a clean sets object restricted to known exercise IDs
+let safeSets = {};
+if (data.sets && typeof data.sets === 'object') {
+const knownIds = Object.keys(EX_DEF);
+for (const id of knownIds) {
+if (Object.prototype.hasOwnProperty.call(data.sets, id)) safeSets[id] = data.sets[id];
+}
+}
 const rawDate = data.exportDate;
 const parsedDate = rawDate && !isNaN(new Date(rawDate)) ? new Date(rawDate).toLocaleDateString() : 'unknown date';
 if (!confirm(`Restore backup from ${parsedDate}? This will replace your current data.`)) return;
-S = { ...DEF, ...data.state };
-if (data.sets && typeof data.sets === 'object') sets = data.sets;
+S = { ...DEF, ...safeState };
+sets = safeSets;
 persist();
 persistSets();
 render();
